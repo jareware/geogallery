@@ -15,121 +15,14 @@
     <main>
 
         <aside>
-            <h2>Day 1</h2>
+            <h2></h2>
             <div id="map-container"></div>
         </aside>
-
-        <img src="http://i.imgur.com/JOCymfx.png">
-        <img src="http://i.imgur.com/JOCymfx.png">
-        <img src="http://i.imgur.com/JOCymfx.png" data-location="35.7100555555556 139.810611111111">
-        <img src="http://i.imgur.com/JOCymfx.png">
-        <img src="http://i.imgur.com/JOCymfx.png" data-location="37.551 126.988">
-        <img src="http://i.imgur.com/JOCymfx.png">
 
     </main>
 
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js"></script>
-
-    <script>
-        (function() { "use strict";
-
-            var header = document.querySelector('header');
-            var aside = document.querySelector('aside');
-            var asideToggleAt = header.offsetHeight + header.offsetTop;
-
-            function updateAsideActiveState() {
-                var scrollTop = document.body.scrollTop;
-                if (scrollTop > asideToggleAt && !aside.className) {
-                    aside.className = 'active';
-                } else if (scrollTop <= asideToggleAt && aside.className === 'active') {
-                    aside.className = '';
-                }
-            }
-
-            var asideWidth = aside.offsetWidth;
-
-            function updateImageActiveState() {
-                var oldTargetImg = document.querySelector('img.active');
-                var newTargetImg = document.elementFromPoint(asideWidth + (window.innerWidth - asideWidth) / 2, window.innerHeight / 2);
-                if (newTargetImg && newTargetImg.tagName !== 'IMG') {
-                    newTargetImg = null; // only <img>s count
-                }
-                if (oldTargetImg && newTargetImg && oldTargetImg !== newTargetImg) {
-                    oldTargetImg.className = '';
-                    newTargetImg.className = 'active';
-                    updateMapPoint(newTargetImg.dataset.location);
-                } else if (!oldTargetImg && newTargetImg) {
-                    newTargetImg.className = 'active';
-                    updateMapPoint(newTargetImg.dataset.location);
-                } else if (oldTargetImg && !newTargetImg) {
-                    oldTargetImg.className = '';
-                    updateMapPoint();
-                }
-            }
-
-            var map;
-            var mapContainer = document.getElementById('map-container');
-            var travelTypeConfig = {
-                BUS: 'blue',
-                WALK: 'red'
-            };
-
-            function initializeMap() {
-                map = new google.maps.Map(mapContainer, {
-                    center: new google.maps.LatLng(-34.397, 150.644),
-                    zoom: 8
-                });
-                var trackData = JSON.parse((localStorage['track'] || '[]'));
-                var bounds = new google.maps.LatLngBounds();
-                trackData.forEach(function(segment) {
-                    var coords = segment.points.map(function(pointTuple) {
-                        return new google.maps.LatLng(pointTuple[0], pointTuple[1]);
-                    });
-                    var polyLine = new google.maps.Polyline({
-                        path: coords,
-                        geodesic: true,
-                        strokeColor: travelTypeConfig[segment.type] || 'gray',
-                        strokeOpacity: 1.0,
-                        strokeWeight: 2
-                    });
-                    polyLine.setMap(map);
-                    coords.forEach(function(c) {
-                        bounds.extend(c);
-                    });
-                });
-                map.fitBounds(bounds);
-            }
-
-            var mapMarker;
-
-            // @example coordinates = "37.551 126.988"
-            function updateMapPoint(coordinates) {
-                if (mapMarker) {
-                    mapMarker.setMap(null); // remove previous marker
-                }
-                if (!coordinates) {
-                    return;
-                }
-                coordinates = { lat: parseFloat(coordinates.split(' ')[0]), lng: parseFloat(coordinates.split(' ')[1]) };
-                mapMarker = new google.maps.Marker({
-                    position: coordinates, // or: new google.maps.LatLng(-25.363882,131.044922),
-                    map: map
-                });
-                map.panTo(coordinates);
-            }
-
-            function onScroll() {
-                updateAsideActiveState();
-                updateImageActiveState();
-            }
-
-            initializeMap();
-            onScroll();
-
-            document.addEventListener('scroll', onScroll);
-
-        })();
-    </script>
+    <script src="index.js"></script>
 
 </body>
 </html>
