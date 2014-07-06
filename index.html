@@ -22,7 +22,7 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 300px;
+            width: 500px;
             height: 200vh;
             background: gray;
             overflow: hidden;
@@ -34,7 +34,7 @@
         }
         main {
             position: relative;
-            padding: 30px 30px 0 330px;
+            padding: 30px 30px 0 530px;
         }
         main > img {
             display: block;
@@ -117,12 +117,35 @@
 
             var map;
             var mapContainer = document.getElementById('map-container');
+            var travelTypeConfig = {
+                BUS: 'blue',
+                WALK: 'red'
+            };
 
             function initializeMap() {
                 map = new google.maps.Map(mapContainer, {
                     center: new google.maps.LatLng(-34.397, 150.644),
                     zoom: 8
                 });
+                var trackData = JSON.parse((localStorage['track'] || '[]'));
+                var bounds = new google.maps.LatLngBounds();
+                trackData.forEach(function(segment) {
+                    var coords = segment.points.map(function(pointTuple) {
+                        return new google.maps.LatLng(pointTuple[0], pointTuple[1]);
+                    });
+                    var polyLine = new google.maps.Polyline({
+                        path: coords,
+                        geodesic: true,
+                        strokeColor: travelTypeConfig[segment.type] || 'gray',
+                        strokeOpacity: 1.0,
+                        strokeWeight: 2
+                    });
+                    polyLine.setMap(map);
+                    coords.forEach(function(c) {
+                        bounds.extend(c);
+                    });
+                });
+                map.fitBounds(bounds);
             }
 
             var mapMarker;
