@@ -15,6 +15,21 @@
     })({});
 })({
 
+    config: function(api, declare) {
+
+        declare({
+            TRAVEL_TYPE_COLORS: {
+                WALK: 'red',
+                BUS: 'blue',
+                METRO: 'orange',
+                TAXI: 'yellow',
+                CABLECAR: 'black',
+                unknown: 'darkgray'
+            }
+        });
+
+    },
+
     dom: function(api, declare) {
 
         declare({
@@ -23,7 +38,8 @@
             header: document.querySelector('header'),
             main: document.querySelector('main'),
             aside: document.querySelector('aside'),
-            map: document.getElementById('map-container')
+            map: document.getElementById('map-container'),
+            legend: document.querySelector('aside > ul')
         });
 
     },
@@ -73,16 +89,32 @@
 
     },
 
+    legend: function(api, declare) {
+
+        var lookup = {};
+
+        Object.keys(api.config.TRAVEL_TYPE_COLORS).forEach(function(key) {
+            var el = document.createElement('li');
+            el.innerText = key;
+            el.style.color = api.config.TRAVEL_TYPE_COLORS[key];
+            api.dom.legend.appendChild(el);
+            lookup[key] = el;
+        });
+
+        declare({
+            updateVisibleTypes: function(types) {
+                Object.keys(lookup).forEach(function(key) {
+                    lookup[key].className = (types.indexOf(key) !== -1) ? 'active' : '';
+                });
+            }
+        });
+
+    },
+
     map: function(api, declare) {
 
-        var TRAVEL_TYPE_COLORS = {
-            BUS: 'blue',
-            WALK: 'red',
-            unknown: 'gray'
-        };
-
         var map = new google.maps.Map(api.dom.map, {
-            center: new google.maps.LatLng(0, 0), // TODO: Are more sensible default..?
+            center: new google.maps.LatLng(0, 0), // TODO: Add more sensible default..?
             zoom: 8
         });
 
@@ -128,9 +160,9 @@
                 var polyLine = new google.maps.Polyline({
                     path: coords,
                     geodesic: true,
-                    strokeColor: TRAVEL_TYPE_COLORS[segment.type] || TRAVEL_TYPE_COLORS.unknown,
+                    strokeColor: api.config.TRAVEL_TYPE_COLORS[segment.type] || api.config.TRAVEL_TYPE_COLORS.unknown,
                     strokeOpacity: 1.0,
-                    strokeWeight: 2
+                    strokeWeight: 4
                 });
                 polyLine.setMap(map);
                 coords.forEach(function(c) {
@@ -139,6 +171,9 @@
                 return polyLine;
             });
             map.fitBounds(bounds);
+            api.legend.updateVisibleTypes(group.segments.map(function(segment) {
+                return segment.type;
+            }));
         }
 
         var currentlyFocused;
@@ -218,6 +253,8 @@
 
         api.dom.document.addEventListener('scroll', onScroll);
         onScroll();
+
+        api.map.focusMediaItem(api.dom.main.querySelector('img')); // pre-select the first image
 
         declare();
 

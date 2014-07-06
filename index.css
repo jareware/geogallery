@@ -24,6 +24,20 @@ aside.active {
     height: auto;
     bottom: 0;
 }
+aside > ul {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+aside > ul > li {
+    float: left;
+    display: none;
+    overflow: hidden;
+    padding: 5px;
+}
+aside > ul > li.active {
+    display: block;
+}
 main {
     position: relative;
     padding: 30px 30px 0 530px;
