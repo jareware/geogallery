@@ -46,6 +46,11 @@
         main > img.active {
             border-color: green;
         }
+        #map-container {
+            width: 100%;
+            height: 500px;
+            border: 3px solid red;
+        }
 
     </style>
 </head>
@@ -59,30 +64,39 @@
 
         <aside>
             <h2>Day 1</h2>
-            <p>Bla bla bla...</p>
+            <div id="map-container"></div>
         </aside>
 
         <img src="http://i.imgur.com/JOCymfx.png">
         <img src="http://i.imgur.com/JOCymfx.png">
+        <img src="http://i.imgur.com/JOCymfx.png" data-location="35.7100555555556 139.810611111111">
         <img src="http://i.imgur.com/JOCymfx.png">
-        <img src="http://i.imgur.com/JOCymfx.png">
+        <img src="http://i.imgur.com/JOCymfx.png" data-location="37.551 126.988">
         <img src="http://i.imgur.com/JOCymfx.png">
 
     </main>
 
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js"></script>
+
     <script>
         (function() { "use strict";
+
             var header = document.querySelector('header');
             var aside = document.querySelector('aside');
-            var asideWidth = aside.offsetWidth;
             var asideToggleAt = header.offsetHeight + header.offsetTop;
-            document.addEventListener('scroll', function() {
+
+            function updateAsideActiveState() {
                 var scrollTop = document.body.scrollTop;
                 if (scrollTop > asideToggleAt && !aside.className) {
                     aside.className = 'active';
                 } else if (scrollTop <= asideToggleAt && aside.className === 'active') {
                     aside.className = '';
                 }
+            }
+
+            var asideWidth = aside.offsetWidth;
+
+            function updateImageActiveState() {
                 var oldTargetImg = document.querySelector('img.active');
                 var newTargetImg = document.elementFromPoint(asideWidth + (window.innerWidth - asideWidth) / 2, window.innerHeight / 2);
                 if (newTargetImg && newTargetImg.tagName !== 'IMG') {
@@ -91,12 +105,54 @@
                 if (oldTargetImg && newTargetImg && oldTargetImg !== newTargetImg) {
                     oldTargetImg.className = '';
                     newTargetImg.className = 'active';
+                    updateMapPoint(newTargetImg.dataset.location);
                 } else if (!oldTargetImg && newTargetImg) {
                     newTargetImg.className = 'active';
+                    updateMapPoint(newTargetImg.dataset.location);
                 } else if (oldTargetImg && !newTargetImg) {
                     oldTargetImg.className = '';
+                    updateMapPoint();
                 }
-            });
+            }
+
+            var map;
+            var mapContainer = document.getElementById('map-container');
+
+            function initializeMap() {
+                map = new google.maps.Map(mapContainer, {
+                    center: new google.maps.LatLng(-34.397, 150.644),
+                    zoom: 8
+                });
+            }
+
+            var mapMarker;
+
+            // @example coordinates = "37.551 126.988"
+            function updateMapPoint(coordinates) {
+                if (mapMarker) {
+                    mapMarker.setMap(null); // remove previous marker
+                }
+                if (!coordinates) {
+                    return;
+                }
+                coordinates = { lat: parseFloat(coordinates.split(' ')[0]), lng: parseFloat(coordinates.split(' ')[1]) };
+                mapMarker = new google.maps.Marker({
+                    position: coordinates, // or: new google.maps.LatLng(-25.363882,131.044922),
+                    map: map
+                });
+                map.panTo(coordinates);
+            }
+
+            function onScroll() {
+                updateAsideActiveState();
+                updateImageActiveState();
+            }
+
+            initializeMap();
+            onScroll();
+
+            document.addEventListener('scroll', onScroll);
+
         })();
     </script>
 
