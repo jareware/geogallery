@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, height=device-height" />
+    <title>Gallery title</title>
+    <style type="text/css">
+
+        * {
+            box-sizing: border-box;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background: green;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        aside {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 300px;
+            height: 200vh;
+            background: gray;
+            overflow: hidden;
+        }
+        aside.active {
+            position: fixed;
+            height: auto;
+            bottom: 0;
+        }
+        main {
+            position: relative;
+            padding: 30px 30px 0 330px;
+        }
+        main > img {
+            display: block;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto 30px auto;
+            border: 5px solid transparent;
+        }
+        main > img.active {
+            border-color: green;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Gallery title</h1>
+    </header>
+
+    <main>
+
+        <aside>
+            <h2>Day 1</h2>
+            <p>Bla bla bla...</p>
+        </aside>
+
+        <img src="http://i.imgur.com/JOCymfx.png">
+        <img src="http://i.imgur.com/JOCymfx.png">
+        <img src="http://i.imgur.com/JOCymfx.png">
+        <img src="http://i.imgur.com/JOCymfx.png">
+        <img src="http://i.imgur.com/JOCymfx.png">
+
+    </main>
+
+    <script>
+        (function() { "use strict";
+            var header = document.querySelector('header');
+            var aside = document.querySelector('aside');
+            var asideWidth = aside.offsetWidth;
+            var asideToggleAt = header.offsetHeight + header.offsetTop;
+            document.addEventListener('scroll', function() {
+                var scrollTop = document.body.scrollTop;
+                if (scrollTop > asideToggleAt && !aside.className) {
+                    aside.className = 'active';
+                } else if (scrollTop <= asideToggleAt && aside.className === 'active') {
+                    aside.className = '';
+                }
+                var oldTargetImg = document.querySelector('img.active');
+                var newTargetImg = document.elementFromPoint(asideWidth + (window.innerWidth - asideWidth) / 2, window.innerHeight / 2);
+                if (newTargetImg && newTargetImg.tagName !== 'IMG') {
+                    newTargetImg = null; // only <img>s count
+                }
+                if (oldTargetImg && newTargetImg && oldTargetImg !== newTargetImg) {
+                    oldTargetImg.className = '';
+                    newTargetImg.className = 'active';
+                } else if (!oldTargetImg && newTargetImg) {
+                    newTargetImg.className = 'active';
+                } else if (oldTargetImg && !newTargetImg) {
+                    oldTargetImg.className = '';
+                }
+            });
+        })();
+    </script>
+
+</body>
+</html>
+
+
