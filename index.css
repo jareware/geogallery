@@ -1,75 +1,190 @@
 * {
     box-sizing: border-box;
 }
+
 html, body {
     margin: 0;
     padding: 0;
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: 200;
+    color: #444;
 }
+
 body {
     position: relative;
     top: 0;
     transition: top ease-out 500ms;
 }
+
 body.without-transition {
     transition: none;
 }
+
 header {
-    background: green;
+    background: #F6F0EC;
     min-height: 100vh;
     overflow: hidden;
 }
+
+header .heading {
+  width: 50%;
+  float: left;
+}
+
+header h1 {
+  font-size: 70px;
+  margin: 0;
+  padding: 50px 50px 0 50px;
+  font-weight: 200;
+  text-transform: uppercase;
+}
+
+header span {
+  font-size: 30px;
+  margin: 0;
+  color: #888;
+  padding: 0 50px 50px 60px;
+  font-weight: 200;
+}
+
+header .heading-image {
+  margin-top: 50px;
+  float: right;
+  background: url('http://shechive.files.wordpress.com/2010/09/beautiful-nature-10.jpg') no-repeat;
+  background-size: 670px 500px;
+  width: 50%;
+  height: 540px;
+}
+
+header .header-box {
+  width: 50%;
+  float: left;
+  padding: 60px;
+  font-size: 14;
+  line-height: 25px;
+}
+
+header .header-box h2 {
+  font-weight: 200;
+  margin: 0;
+  font-size: 30px;
+  padding: 0 0 10px 0;
+}
+
+header ul.trip-specs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+header ul.trip-specs li {
+  margin: 0;
+  padding: 15px 6px;
+  overflow: hidden;
+}
+
+header ul.trip-specs li div {
+  float: left;
+  width: 190px;
+}
+
+header ul.trip-specs li div:first-child {
+  border-bottom: 1px dashed #888;
+  border-right: 1px dashed #888;
+  margin-right: 15px;
+}
+
+header .header-days {
+  width: 100%;
+  overflow: hidden;
+  clear: both;
+  padding: 40px 60px;
+}
+
+header .header-days ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+header .header-days li {
+  float: left;
+  padding-right: 15px;
+  position: relative;
+}
+
+header .header-days .day-title {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  background: white;
+  opacity: 0.5;
+  padding: 4px;
+  font-size: 30px;
+}
+
 aside {
     position: absolute;
     top: 0;
     left: 0;
-    width: 300px;
+    width: 500px;
     height: 200vh;
     background: gray;
     overflow: hidden;
 }
+
 aside.active {
     position: fixed;
     height: auto;
     bottom: 0;
 }
+
 aside > ul {
     margin: 0;
     padding: 0;
     overflow: hidden;
 }
+
 aside > ul > li {
     float: left;
     display: none;
     overflow: hidden;
     padding: 5px;
 }
+
 aside > ul > li.active {
     display: block;
 }
+
 main {
     position: relative;
-    padding: 30px 30px 0 330px;
+    padding: 30px 30px 0 530px;
 }
+
 main > img,
 main > video {
     display: block;
     min-height: 100px;
-    background: yellow;
+    background: gray; /* placeholder color for not-yet-loaded media */
     margin: 0 auto 30px auto;
     border: 5px solid transparent;
 }
+
 main > img.active,
 main > video.active {
     border-color: green;
 }
+
 main > img.landscape,
 main > video {
     width: 100%;
     max-width: 1000px;
 }
+
 main > img.portrait {
     max-height: 85vh;
 }
+
 #map-container {
     width: 100%;
     height: 500px;
