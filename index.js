@@ -190,31 +190,44 @@
 
     scroll: function(api, declare) {
 
-        var scrollHackResetTimeout;
-        var ignoreScrollEvents = false;
+        var scrollResetTimeout;
+        var animationEndTimeout;
+        var ignoreNextScroll = false;
+        var scrollHandlers = [];
+
+        function onScroll() {
+            scrollHandlers.forEach(function(handler) {
+                handler();
+            });
+        }
+
+        api.dom.document.addEventListener('scroll', function() {
+            if (ignoreNextScroll) {
+                ignoreNextScroll = false;
+            } else {
+                onScroll();
+            }
+        });
 
         declare({
-            on: function(callback) {
-                api.dom.document.addEventListener('scroll', function() {
-                    if (!ignoreScrollEvents) {
-                        callback();
-                    }
-                });
-                window.setTimeout(callback, 1); // for convenience, invoke each handler on boot, too
+            on: function(handler) {
+                scrollHandlers.push(handler); // handlers are invoked on natural scroll events, plus at the end of a synthetic "smooth-scroll"
+                window.setTimeout(handler, 1); // for convenience, invoke each handler on boot, too
             },
             to: function(el) {
                 if (!el) { return }
                 var currentScrollTop = api.dom.body.scrollTop;
                 var wantedScrollTop = api.dom.header.offsetHeight + el.offsetTop - (window.innerHeight / 2) + (el.offsetHeight / 2);
                 api.dom.main.style.top = (currentScrollTop - wantedScrollTop) + 'px';
-                window.clearTimeout(scrollHackResetTimeout);
-                scrollHackResetTimeout = window.setTimeout(function() {
-                    ignoreScrollEvents = true;
-                    api.dom.main.className = '';
+                window.clearTimeout(animationEndTimeout);
+                window.clearTimeout(scrollResetTimeout);
+                animationEndTimeout = window.setTimeout(onScroll, 600);
+                scrollResetTimeout = window.setTimeout(function() {
+                    ignoreNextScroll = true;
+                    api.dom.main.className = 'without-transition';
                     api.dom.main.style.top = 0;
                     api.dom.body.scrollTop = wantedScrollTop;
-                    ignoreScrollEvents = false;
-                    api.dom.main.className = 'with-transition';
+                    api.dom.main.className = '';
                 }, 2500);
             }
         });
@@ -291,6 +304,56 @@
 
         firstMediaEl.className = 'active';
         api.aside.focusMediaItem(firstMediaEl);
+
+        function scrollToMediaItem(mediaEl) {
+            deactivateCurrent();
+            if (!mediaEl) { return }
+            mediaEl.className = 'active';
+            api.aside.focusMediaItem(mediaEl);
+            api.scroll.to(mediaEl);
+        }
+
+        function getCurrent() {
+            return api.dom.main.querySelector('img.active') || {};
+        }
+
+        declare({
+            goToNext: function() {
+                scrollToMediaItem(getCurrent().nextSibling); // TODO: CHECK TYPE
+            },
+            goToPrev: function() {
+                scrollToMediaItem(getCurrent().previousSibling); // TODO: CHECK TYPE
+            }
+        });
+
+    },
+
+    keyboard: function(api, declare) {
+
+        api.dom.document.addEventListener('keydown', function(event) {
+            switch (event.keyCode) {
+                case 40: // down
+                    api.media.goToNext();
+                    event.preventDefault();
+                    break;
+                case 38: // up
+                    api.media.goToPrev();
+                    event.preventDefault();
+                    break;
+                case 37: // left
+                    break;
+                case 39: // right
+                    break;
+            }
+        });
+
+        declare();
+
+    },
+
+    publish: function(api, declare) {
+
+        window.api = api;
 
         declare();
 
