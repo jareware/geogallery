@@ -5,6 +5,14 @@ html, body {
     margin: 0;
     padding: 0;
 }
+body {
+    position: relative;
+    top: 0;
+    transition: top ease-out 500ms;
+}
+body.without-transition {
+    transition: none;
+}
 header {
     background: green;
     min-height: 100vh;
@@ -41,11 +49,6 @@ aside > ul > li.active {
 main {
     position: relative;
     padding: 30px 30px 0 530px;
-    background: white;
-    transition: top ease-out 500ms;
-}
-main.without-transition {
-    transition: none;
 }
 main > img {
     display: block;
