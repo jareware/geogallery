@@ -188,6 +188,39 @@
 
     },
 
+    scroll: function(api, declare) {
+
+        var scrollHackResetTimeout;
+        var ignoreScrollEvents = false;
+
+        declare({
+            on: function(callback) {
+                api.dom.document.addEventListener('scroll', function() {
+                    if (!ignoreScrollEvents) {
+                        callback();
+                    }
+                });
+                window.setTimeout(callback, 1); // for convenience, invoke each handler on boot, too
+            },
+            to: function(el) {
+                if (!el) { return }
+                var currentScrollTop = api.dom.body.scrollTop;
+                var wantedScrollTop = api.dom.header.offsetHeight + el.offsetTop - (window.innerHeight / 2) + (el.offsetHeight / 2);
+                api.dom.main.style.top = (currentScrollTop - wantedScrollTop) + 'px';
+                window.clearTimeout(scrollHackResetTimeout);
+                scrollHackResetTimeout = window.setTimeout(function() {
+                    ignoreScrollEvents = true;
+                    api.dom.main.className = '';
+                    api.dom.main.style.top = 0;
+                    api.dom.body.scrollTop = wantedScrollTop;
+                    ignoreScrollEvents = false;
+                    api.dom.main.className = 'with-transition';
+                }, 2500);
+            }
+        });
+
+    },
+
     aside: function(api, declare) {
 
         var asideToggleAt = api.dom.header.offsetHeight + api.dom.header.offsetTop;
@@ -202,8 +235,7 @@
             }
         }
 
-        api.dom.document.addEventListener('scroll', onScroll);
-        onScroll();
+        api.scroll.on(onScroll);
 
         var currentlyFocused;
 
@@ -255,8 +287,7 @@
             }
         }
 
-        api.dom.document.addEventListener('scroll', onScroll);
-        onScroll();
+        api.scroll.on(onScroll);
 
         firstMediaEl.className = 'active';
         api.aside.focusMediaItem(firstMediaEl);
