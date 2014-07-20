@@ -268,8 +268,6 @@
 
     media: function(api, declare) {
 
-        var firstMediaEl;
-
         api.data.media.forEach(function(group) {
             group.media.forEach(function(media) {
                 var el = document.createElement('img');
@@ -278,52 +276,43 @@
                 el.dataset.location = media.location;
                 el.dataset.timestamp = media.timestamp;
                 api.dom.main.appendChild(el);
-                firstMediaEl = firstMediaEl || el;
             });
         });
 
         var asideWidth = api.dom.aside.offsetWidth;
+        var activeMediaEl = {}; // placeholder object
 
-        function deactivateCurrent() {
-            (api.dom.main.querySelector('img.active') || {}).className = '';
-        }
+        function setActiveEl(newMediaEl, withScroll) {
 
-        function onScroll() {
-            var newTarget = api.dom.document.elementFromPoint(asideWidth + (window.innerWidth - asideWidth) / 2, window.innerHeight / 2);
-            if (newTarget === api.dom.header) {
-                deactivateCurrent();
-                firstMediaEl.className = 'active';
-                api.aside.focusMediaItem(firstMediaEl);
-            } else if (newTarget.className !== 'active') {
-                deactivateCurrent();
-                newTarget.className = 'active';
-                api.aside.focusMediaItem(newTarget);
+            if (!newMediaEl || newMediaEl.tagName !== 'IMG' || newMediaEl === activeMediaEl) {
+                return;
             }
+
+            activeMediaEl.className = '';
+            newMediaEl.className = 'active';
+
+            if (withScroll) {
+                api.scroll.to(newMediaEl);
+            }
+
+            api.aside.focusMediaItem(newMediaEl);
+
+            activeMediaEl = newMediaEl;
+
         }
 
-        api.scroll.on(onScroll);
+        setActiveEl(api.dom.main.querySelector('img'));
 
-        firstMediaEl.className = 'active';
-        api.aside.focusMediaItem(firstMediaEl);
-
-        function scrollToMediaItem(mediaEl) {
-            deactivateCurrent();
-            if (!mediaEl) { return }
-            mediaEl.className = 'active';
-            api.aside.focusMediaItem(mediaEl);
-            api.scroll.to(mediaEl);
-        }
-
-        function getCurrent() {
-            return api.dom.main.querySelector('img.active') || {};
-        }
+        api.scroll.on(function() {
+            setActiveEl(api.dom.document.elementFromPoint(asideWidth + (window.innerWidth - asideWidth) / 2, window.innerHeight / 2));
+        });
 
         declare({
             goToNext: function() {
-                scrollToMediaItem(getCurrent().nextSibling); // TODO: CHECK TYPE
+                setActiveEl(activeMediaEl.nextSibling, true);
             },
             goToPrev: function() {
-                scrollToMediaItem(getCurrent().previousSibling); // TODO: CHECK TYPE
+                setActiveEl(activeMediaEl.previousSibling, true);
             }
         });
 
