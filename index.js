@@ -198,7 +198,7 @@
 
         function onScroll() {
             scrollHandlers.forEach(function(handler) {
-                handler(syntheticScrollTop);
+                handler(syntheticScrollTop || api.dom.body.scrollTop);
             });
         }
 
@@ -218,18 +218,19 @@
             to: function(el) {
                 if (!el) { return }
                 var currentScrollTop = api.dom.body.scrollTop;
-                var wantedScrollTop = syntheticScrollTop = api.dom.header.offsetHeight + el.offsetTop - (window.innerHeight / 2) + (el.offsetHeight / 2);
+                var wantedScrollTop = syntheticScrollTop = Math.round(api.dom.header.offsetHeight + el.offsetTop - (window.innerHeight / 2) + (el.offsetHeight / 2));
                 api.dom.body.style.top = (currentScrollTop - wantedScrollTop) + 'px';
                 window.clearTimeout(animationEndTimeout);
                 window.clearTimeout(scrollResetTimeout);
                 animationEndTimeout = window.setTimeout(onScroll, 500);
                 scrollResetTimeout = window.setTimeout(function() {
                     ignoreNextScroll = true;
+                    syntheticScrollTop = 0;
                     api.dom.body.className = 'without-transition';
                     api.dom.body.style.top = 0;
                     api.dom.body.scrollTop = wantedScrollTop;
                     api.dom.body.className = '';
-                }, 2500);
+                }, 1000);
             }
         });
 
