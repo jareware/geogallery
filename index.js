@@ -222,6 +222,8 @@
 
     media: function(api, declare) {
 
+        var firstMediaEl;
+
         api.data.media.forEach(function(group) {
             group.media.forEach(function(media) {
                 var el = document.createElement('img');
@@ -230,6 +232,7 @@
                 el.dataset.location = media.location;
                 el.dataset.timestamp = media.timestamp;
                 api.dom.main.appendChild(el);
+                firstMediaEl = firstMediaEl || el;
             });
         });
 
@@ -243,7 +246,8 @@
             var newTarget = api.dom.document.elementFromPoint(asideWidth + (window.innerWidth - asideWidth) / 2, window.innerHeight / 2);
             if (newTarget === api.dom.header) {
                 deactivateCurrent();
-                api.aside.focusMediaItem();
+                firstMediaEl.className = 'active';
+                api.aside.focusMediaItem(firstMediaEl);
             } else if (newTarget.className !== 'active') {
                 deactivateCurrent();
                 newTarget.className = 'active';
@@ -254,7 +258,8 @@
         api.dom.document.addEventListener('scroll', onScroll);
         onScroll();
 
-        api.map.focusMediaItem(api.dom.main.querySelector('img')); // pre-select the first image
+        firstMediaEl.className = 'active';
+        api.aside.focusMediaItem(firstMediaEl);
 
         declare();
 
