@@ -33,7 +33,63 @@
 
     dom: function(api, declare) {
 
+        /**
+         * Returns a node with the given name. The rest are var-args, so that:
+         *
+         * - an object sets attributes as key/value-pairs
+         * - a string/number/boolean sets the text content of the node
+         * - an array is treated as a list of child nodes
+         *
+         * As a special case, if the node name is "<!", a comment node is created,
+         * with the following string as its content.
+         *
+         * For convenience, falsy values in the list of children are ignored.
+         *
+         * @todo https://developer.mozilla.org/en-US/docs/Web/API/document.createTextNode
+         *
+         * @example el('p', [
+         *              el('a', 'Click here', {
+         *                  href: '#some-location'
+         *              })
+         *          ]);
+         *
+         * @returns https://developer.mozilla.org/en-US/docs/Web/API/element
+         *
+         * @link https://gist.github.com/jareware/8dc0cc1a948c122edce0
+         * @author Jarno Rantanen <jarno@jrw.fi>
+         * @license Do whatever you want with it
+         */
+        function el(name) {
+            var attributes = {}, text, children = [];
+            Array.prototype.slice.call(arguments, 1).forEach(function(arg) {
+                if (arg instanceof Array) {
+                    children = arg;
+                } else if (typeof arg === 'object') {
+                    attributes = arg;
+                } else if ([ 'string', 'number', 'boolean' ].indexOf(typeof arg) >= 0) {
+                    text = arg;
+                }
+            });
+            if (name === '<!') {
+                return document.createComment(text);
+            }
+            var node = document.createElement(name);
+            Object.keys(attributes).forEach(function(key) {
+                node.setAttribute(key, attributes[key]);
+            });
+            if (text) {
+                node.textContent = text;
+            }
+            children.forEach(function(child) {
+                if (child) {
+                    node.appendChild(child);
+                }
+            });
+            return node;
+        }
+
         declare({
+            el: el,
             document: document,
             body: document.body,
             header: document.querySelector('header'),
