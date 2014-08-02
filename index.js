@@ -261,7 +261,7 @@
                 var group = api.data.getByGroupID(api.data.media, mediaEl.dataset.groupID);
                 if (!group) { return }
                 api.dom.aside.querySelector('h2').innerText = group.title;
-                api.dom.aside.querySelector('pre').innerText = mediaEl.dataset.timestamp;
+                api.dom.aside.querySelector('pre').innerText = mediaEl.dataset.timestamp + '\n' + (mediaEl.dataset.comment || '');
                 api.map.focusMediaItem(mediaEl);
             }
         });
@@ -277,6 +277,7 @@
                 el.dataset.groupID = group.groupID;
                 el.dataset.location = media.location;
                 el.dataset.timestamp = media.timestamp;
+                el.dataset.comment = media.comment;
                 api.dom.main.appendChild(el);
             });
         });
