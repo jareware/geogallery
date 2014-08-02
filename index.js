@@ -344,8 +344,10 @@
                 currentlyFocused = mediaEl;
                 var group = api.data.getByGroupID(api.data.media, mediaEl.dataset.groupID);
                 if (!group) { return }
-                api.dom.aside.querySelector('h2').innerText = group.title;
-                api.dom.aside.querySelector('pre').innerText = mediaEl.dataset.timestamp + '\n' + (mediaEl.dataset.comment || '');
+                var groupIndex = api.data.media.indexOf(group);
+                aside.querySelector('h2').innerText = group.title;
+                aside.querySelector('h2').style.background = api.config.DAY_THEME_PALETTE[groupIndex % api.config.DAY_THEME_PALETTE.length];
+                aside.querySelector('pre').innerText = mediaEl.dataset.timestamp + '\n' + (mediaEl.dataset.comment || '');
                 api.map.focusMediaItem(mediaEl);
             }
         });
