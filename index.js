@@ -261,6 +261,7 @@
                 var group = api.data.getByGroupID(api.data.media, mediaEl.dataset.groupID);
                 if (!group) { return }
                 api.dom.aside.querySelector('h2').innerText = group.title;
+                api.dom.aside.querySelector('pre').innerText = mediaEl.dataset.timestamp;
                 api.map.focusMediaItem(mediaEl);
             }
         });
