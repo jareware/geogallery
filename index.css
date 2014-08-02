@@ -52,8 +52,6 @@ main {
 }
 main > img {
     display: block;
-    width: 100%;
-    max-width: 1000px;
     min-height: 100px;
     background: yellow;
     margin: 0 auto 30px auto;
@@ -61,6 +59,13 @@ main > img {
 }
 main > img.active {
     border-color: green;
+}
+main > img.landscape {
+    width: 100%;
+    max-width: 1000px;
+}
+main > img.portrait {
+    max-height: 85vh;
 }
 #map-container {
     width: 100%;

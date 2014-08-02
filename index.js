@@ -105,7 +105,7 @@
         declare({
             updateVisibleTypes: function(types) {
                 Object.keys(lookup).forEach(function(key) {
-                    lookup[key].className = (types.indexOf(key) !== -1) ? 'active' : '';
+                    lookup[key].classList.toggle('active', types.indexOf(key) !== -1);
                 });
             }
         });
@@ -227,10 +227,10 @@
                 scrollResetTimeout = window.setTimeout(function() {
                     ignoreNextScroll = true;
                     syntheticScrollTop = 0;
-                    api.dom.body.className = 'without-transition';
+                    api.dom.body.classList.add('without-transition');
                     api.dom.body.style.top = 0;
                     api.dom.body.scrollTop = wantedScrollTop;
-                    api.dom.body.className = '';
+                    api.dom.body.classList.remove('without-transition');
                 }, 1000);
             }
         });
@@ -243,10 +243,10 @@
         var aside = api.dom.aside;
 
         function onScroll(scrollTop) {
-            if (scrollTop > asideToggleAt && !aside.className) {
-                aside.className = 'active';
-            } else if (scrollTop <= asideToggleAt && aside.className === 'active') {
-                aside.className = '';
+            if (scrollTop > asideToggleAt && !aside.classList.contains('active')) {
+                aside.classList.add('active');
+            } else if (scrollTop <= asideToggleAt && aside.classList.contains('active')) {
+                aside.classList.remove('active');
             }
         }
 
@@ -282,7 +282,7 @@
         });
 
         var asideWidth = api.dom.aside.offsetWidth;
-        var activeMediaEl = {}; // placeholder object
+        var activeMediaEl;
 
         function setActiveEl(newMediaEl, withScroll) {
 
@@ -290,8 +290,11 @@
                 return;
             }
 
-            activeMediaEl.className = '';
-            newMediaEl.className = 'active';
+            if (activeMediaEl) {
+                activeMediaEl.classList.remove('active');
+            }
+
+            newMediaEl.classList.add('active');
 
             if (withScroll) {
                 api.scroll.to(newMediaEl);
@@ -314,6 +317,12 @@
             for (var i = 0; i <= api.config.PRELOAD_BUFFER; i++) {
                 if (!cursorEl.getAttribute('src')) {
                     cursorEl.setAttribute('src', cursorEl.dataset.src);
+                    cursorEl.addEventListener('load', (function(el) {
+                        return function() {
+                            if (el.tagName !== 'IMG') { return }
+                            el.classList.add(el.naturalWidth > el.naturalHeight ? 'landscape' : 'portrait');
+                        }
+                    })(cursorEl));
                 }
                 if (!(cursorEl = cursorEl.nextSibling)) { break } // end of media list reached
             }
