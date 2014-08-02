@@ -25,7 +25,8 @@
                 TAXI: 'yellow',
                 CABLECAR: 'black',
                 unknown: 'darkgray'
-            }
+            },
+            PRELOAD_BUFFER: 5 // how many media elements to load in addition to the current one
         });
 
     },
@@ -271,7 +272,7 @@
         api.data.media.forEach(function(group) {
             group.media.forEach(function(media) {
                 var el = document.createElement('img');
-                el.setAttribute('src', media.url);
+                el.dataset.src = media.url;
                 el.dataset.groupID = group.groupID;
                 el.dataset.location = media.location;
                 el.dataset.timestamp = media.timestamp;
@@ -299,9 +300,26 @@
 
             activeMediaEl = newMediaEl;
 
+            updateLoadedMedia();
+
         }
 
         setActiveEl(api.dom.main.querySelector('img'));
+
+        function updateLoadedMedia() {
+
+            var cursorEl = activeMediaEl;
+
+            for (var i = 0; i <= api.config.PRELOAD_BUFFER; i++) {
+                if (!cursorEl.getAttribute('src')) {
+                    cursorEl.setAttribute('src', cursorEl.dataset.src);
+                }
+                if (!(cursorEl = cursorEl.nextSibling)) {
+                    break; // end of media list reached
+                }
+            }
+
+        }
 
         api.scroll.on(function() {
             setActiveEl(api.dom.document.elementFromPoint(asideWidth + (window.innerWidth - asideWidth) / 2, window.innerHeight / 2));
