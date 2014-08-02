@@ -50,17 +50,20 @@ main {
     position: relative;
     padding: 30px 30px 0 330px;
 }
-main > img {
+main > img,
+main > video {
     display: block;
     min-height: 100px;
     background: yellow;
     margin: 0 auto 30px auto;
     border: 5px solid transparent;
 }
-main > img.active {
+main > img.active,
+main > video.active {
     border-color: green;
 }
-main > img.landscape {
+main > img.landscape,
+main > video {
     width: 100%;
     max-width: 1000px;
 }

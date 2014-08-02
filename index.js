@@ -270,24 +270,44 @@
 
     media: function(api, declare) {
 
-        api.data.media.forEach(function(group) {
-            group.media.forEach(function(media) {
-                var el = document.createElement('img');
+        function createMediaEl(group, media) {
+            var el;
+            if (media.url.match(/\.(jpg)$/)) {
+                el = document.createElement('img');
                 el.dataset.src = media.url;
                 el.dataset.groupID = group.groupID;
                 el.dataset.location = media.location;
                 el.dataset.timestamp = media.timestamp;
                 el.dataset.comment = media.comment;
-                api.dom.main.appendChild(el);
+            } else if (media.url.match(/\.(mp4)$/)) {
+                el = document.createElement('video');
+                el.dataset.src = media.url;
+                el.dataset.groupID = group.groupID;
+                el.dataset.location = media.location;
+                el.dataset.timestamp = media.timestamp;
+                el.dataset.comment = media.comment;
+                el.setAttribute('controls', 'controls');
+                el.setAttribute('muted', 'muted');
+            } else {
+                el = document.createElement('pre');
+                el.innerText = 'Unknown media type: ' + media.url;
+            }
+            return el;
+        }
+
+        api.data.media.forEach(function(group) {
+            group.media.forEach(function(media) {
+                api.dom.main.appendChild(createMediaEl(group, media));
             });
         });
 
         var asideWidth = api.dom.aside.offsetWidth;
+        var firstMediaEl = api.dom.main.querySelector('img, video');
         var activeMediaEl;
 
         function setActiveEl(newMediaEl, withScroll) {
 
-            if (!newMediaEl || newMediaEl.tagName !== 'IMG' || newMediaEl === activeMediaEl) {
+            if (!newMediaEl || !(newMediaEl.tagName === 'IMG' || newMediaEl.tagName === 'VIDEO') || newMediaEl === activeMediaEl) {
                 return;
             }
 
@@ -303,27 +323,36 @@
 
             api.aside.focusMediaItem(newMediaEl);
 
+            if (activeMediaEl && activeMediaEl.tagName === 'VIDEO') {
+                activeMediaEl.pause();
+            }
+
+            if (newMediaEl.tagName === 'VIDEO') {
+                newMediaEl.play();
+            }
+
             activeMediaEl = newMediaEl;
 
-            updateLoadedMedia();
+            preloadMediaAsNeeded(activeMediaEl);
 
         }
 
-        setActiveEl(api.dom.main.querySelector('img'));
+        api.aside.focusMediaItem(firstMediaEl);
 
-        function updateLoadedMedia() {
+        preloadMediaAsNeeded(firstMediaEl);
 
-            var cursorEl = activeMediaEl;
+        function preloadMediaAsNeeded(cursorEl) {
 
             for (var i = 0; i <= api.config.PRELOAD_BUFFER; i++) {
                 if (!cursorEl.getAttribute('src')) {
                     cursorEl.setAttribute('src', cursorEl.dataset.src);
-                    cursorEl.addEventListener('load', (function(el) {
-                        return function() {
-                            if (el.tagName !== 'IMG') { return }
-                            el.classList.add(el.naturalWidth > el.naturalHeight ? 'landscape' : 'portrait');
-                        }
-                    })(cursorEl));
+                    if (cursorEl.tagName === 'IMG') { // only images are classified as portrait/landscape
+                        cursorEl.addEventListener('load', (function(el) {
+                            return function() {
+                                el.classList.add(el.naturalWidth > el.naturalHeight ? 'landscape' : 'portrait');
+                            }
+                        })(cursorEl));
+                    }
                 }
                 if (!(cursorEl = cursorEl.nextSibling)) { break } // end of media list reached
             }
@@ -336,10 +365,10 @@
 
         declare({
             goToNext: function() {
-                setActiveEl(activeMediaEl.nextSibling, true);
+                setActiveEl(activeMediaEl ? activeMediaEl.nextSibling : firstMediaEl, true);
             },
             goToPrev: function() {
-                setActiveEl(activeMediaEl.previousSibling, true);
+                setActiveEl(activeMediaEl ? activeMediaEl.previousSibling : null, true);
             }
         });
 
