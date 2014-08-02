@@ -5,9 +5,8 @@
 html, body {
     margin: 0;
     padding: 0;
-    font-family: Helvetica, Arial, sans-serif;
-    font-weight: 200;
-    color: #444;
+    font-family: 'Lato', sans-serif;
+    color: #333;
 }
 
 body {
@@ -24,54 +23,63 @@ header {
     background: #F6F0EC;
     min-height: 100vh;
     overflow: hidden;
+    padding: 10px 25px 30px 40px;
+    background: url(DSC02168.jpg) no-repeat;
+    background-size: 1500px 900px;
 }
 
 header .heading {
-  width: 50%;
-  float: left;
+  width: 100%;
 }
 
 header h1 {
-  font-size: 70px;
+  font-size: 120px;
   margin: 0;
-  padding: 50px 50px 0 50px;
   font-weight: 200;
   text-transform: uppercase;
 }
 
 header span {
   font-size: 30px;
-  margin: 0;
-  color: #888;
-  padding: 0 50px 50px 60px;
+  margin: 0 0 0 12px;
+  color: whitesmoke;
   font-weight: 200;
-}
-
-header .heading-image {
-  margin-top: 50px;
-  float: right;
-  background: url('http://shechive.files.wordpress.com/2010/09/beautiful-nature-10.jpg') no-repeat;
-  background-size: 670px 500px;
-  width: 50%;
-  height: 540px;
 }
 
 header .header-box {
-  width: 50%;
-  float: left;
-  padding: 60px;
-  font-size: 14;
+  overflow: hidden;
+  position: relative;
+  color: white;
+  margin: 40px 0;
+  width: 42%;
+  height: 330px;
+  padding: 30px;
+  font-size: 22px;
   line-height: 25px;
 }
 
+.overlay-layer {
+  position: absolute;
+  opacity: 0.6;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: #111;
+}
+
 header .header-box h2 {
-  font-weight: 200;
+  position: absolute;
+  top: 40px;
+  left: 25px;
   margin: 0;
-  font-size: 30px;
-  padding: 0 0 10px 0;
+  font-size: 40px;
 }
 
 header ul.trip-specs {
+  position: absolute;
+  top: 100px;
+  left: 30px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -85,52 +93,87 @@ header ul.trip-specs li {
 
 header ul.trip-specs li div {
   float: left;
-  width: 190px;
 }
 
 header ul.trip-specs li div:first-child {
-  border-bottom: 1px dashed #888;
-  border-right: 1px dashed #888;
+  width: 180px;
   margin-right: 15px;
 }
 
+header ul.trip-specs li div:last-child {
+  width: 300px;
+}
+
 header .header-days {
-  width: 100%;
+  width: 105%;
+  background: WHITESMOKE;
+  margin: 0 0 -30px -40px;
   overflow: hidden;
-  clear: both;
-  padding: 40px 60px;
 }
 
 header .header-days ul {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 30px;
+  overflow: hidden;
 }
 
 header .header-days li {
   float: left;
-  padding-right: 15px;
+  width: 13.1%;
+  margin: 0 7px;
   position: relative;
+}
+
+header .header-days li .overlay-layer {
+  opacity: 0.9;
+  height: 50px;
+  top: auto;
+  bottom: 0;
+  background: #ff406e;
 }
 
 header .header-days .day-title {
   position: absolute;
-  bottom: 0;
+  bottom: 3px;
+  top: 0;
   left: 0;
-  background: white;
-  opacity: 0.5;
-  padding: 4px;
+  right: 0;
+  color: white;
+  padding: 6px 8px 10px 10px;
   font-size: 30px;
+  line-height: 240px;
 }
+
+.two { background: #E2655E !important; }
+.three { background: #8fcc67 !important; }
+.four { background: #6faa3c !important; }
+.five { background: #5c9fa3 !important; }
+.six { background: #5685a3 !important; }
+.seven { background: #91aeb8 !important; }
 
 aside {
     position: absolute;
     top: 0;
     left: 0;
     width: 500px;
+    padding: 20px 30px;
     height: 200vh;
-    background: gray;
+    background: whitesmoke;
     overflow: hidden;
+}
+
+aside h2 {
+  margin: 0 0 30px 0;
+  padding: 0;
+  font-size: 80px;
+  background: #ff3177;
+  color: white;
+  padding: 5px 20px 17px 20px;
+}
+
+aside #map-container {
+  border: 1px solid #aaa;
 }
 
 aside.active {
@@ -150,6 +193,7 @@ aside > ul > li {
     display: none;
     overflow: hidden;
     padding: 5px;
+    font-size: 25px;
 }
 
 aside > ul > li.active {
@@ -157,6 +201,7 @@ aside > ul > li.active {
 }
 
 main {
+    background: #22221f;
     position: relative;
     padding: 30px 30px 0 530px;
 }
@@ -168,11 +213,12 @@ main > video {
     background: gray; /* placeholder color for not-yet-loaded media */
     margin: 0 auto 30px auto;
     border: 5px solid transparent;
+    opacity: 0.4;
 }
 
 main > img.active,
 main > video.active {
-    border-color: green;
+    opacity: 1;
 }
 
 main > img.landscape,
@@ -188,5 +234,4 @@ main > img.portrait {
 #map-container {
     width: 100%;
     height: 500px;
-    border: 3px solid red;
 }
