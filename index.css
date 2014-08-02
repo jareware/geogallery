@@ -212,7 +212,6 @@ main > video {
     min-height: 100px;
     background: gray; /* placeholder color for not-yet-loaded media */
     margin: 0 auto 30px auto;
-    border: 5px solid transparent;
     opacity: 0.4;
 }
 
