@@ -18,6 +18,15 @@
     config: function(api, declare) {
 
         declare({
+            DAY_THEME_PALETTE: [
+                '#ff406e',
+                '#E2655E',
+                '#8fcc67',
+                '#6faa3c',
+                '#5c9fa3',
+                '#5685a3',
+                '#91aeb8'
+            ],
             TRAVEL_TYPE_COLORS: {
                 WALK: 'red',
                 BUS: 'blue',
@@ -96,7 +105,8 @@
             main: document.querySelector('main'),
             aside: document.querySelector('aside'),
             map: document.getElementById('map-container'),
-            legend: document.querySelector('aside > ul')
+            legend: document.querySelector('aside > ul'),
+            dayList: document.querySelector('header > .header-days ul')
         });
 
     },
@@ -143,6 +153,24 @@
             };
             declare(data);
         });
+
+    },
+
+    header: function(api, declare) {
+
+        var el = api.dom.el;
+        var plt = api.config.DAY_THEME_PALETTE;
+
+        api.data.media.forEach(function(group, index) {
+            api.dom.dayList.appendChild(
+                el('li', { style: 'background-image: url("' + group.thumbnailURL + '")' }, [
+                    el('div', { 'class': 'overlay-layer', style: 'background: ' + plt[index % plt.length] }),
+                    el('div', { 'class': 'day-title' }, group.title)
+                ])
+            );
+        });
+
+        declare();
 
     },
 
