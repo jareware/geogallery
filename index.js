@@ -137,7 +137,7 @@
                 position: coordinates, // or: new google.maps.LatLng(0, 0),
                 map: map
             });
-            // map.panTo(coordinates);
+            map.panTo(coordinates);
         }
 
         var polylines;
@@ -315,9 +315,7 @@
                 if (!cursorEl.getAttribute('src')) {
                     cursorEl.setAttribute('src', cursorEl.dataset.src);
                 }
-                if (!(cursorEl = cursorEl.nextSibling)) {
-                    break; // end of media list reached
-                }
+                if (!(cursorEl = cursorEl.nextSibling)) { break } // end of media list reached
             }
 
         }
