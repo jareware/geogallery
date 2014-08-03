@@ -160,6 +160,14 @@
                 });
                 return match.length === 1 ? match[0] : null;
             };
+            data.getMediaByEl = function(mediaEl) {
+                var group = api.data.getByGroupID(api.data.media, mediaEl.dataset.groupID);
+                var url = mediaEl.dataset.src;
+                var match = group.media.filter(function(mediaItem) {
+                    return mediaItem.url === url;
+                });
+                return match.length === 1 ? match[0] : null;
+            };
             declare(data);
         });
 
@@ -215,21 +223,29 @@
         var marker;
 
         // @example coordinates = "37.551,126.988"
+        // @example coordinates = [37.551,126.988]
         function updateMarker(coordinates) {
-            if (marker) {
-                marker.setMap(null); // remove previous marker
-            }
             if (!coordinates) {
+                if (marker) {
+                    marker.setMap(null); // remove previous marker
+                }
                 return;
             }
+            if (typeof coordinates === 'string') {
+                coordinates = coordinates.split(',').map(parseFloat);
+            }
             coordinates = {
-                lat: parseFloat(coordinates.split(',')[0]),
-                lng: parseFloat(coordinates.split(',')[1])
+                lat: coordinates[0],
+                lng: coordinates[1]
             };
-            marker = new google.maps.Marker({
-                position: coordinates, // or: new google.maps.LatLng(0, 0),
-                map: map
-            });
+            if (marker) {
+                marker.setPosition(coordinates);
+            } else {
+                marker = new google.maps.Marker({
+                    position: coordinates, // or: new google.maps.LatLng(0, 0),
+                    map: map
+                });
+            }
             map.panTo(coordinates);
         }
 
@@ -270,13 +286,33 @@
             }));
         }
 
+        // @see https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Media_events
+        function videoTimeUpdated() {
+            var timeIndex = Math.round(currentlyFocused.currentTime);
+            var location = currentMediaLocations[timeIndex] || currentMediaLocations[currentMediaLocations.length - 1];
+            updateMarker(location);
+        }
+
         var currentlyFocused;
+        var currentMediaLocations;
 
         declare({
             focusMediaItem: function(mediaEl) {
-                if (!mediaEl || currentlyFocused === mediaEl) { return }
-                updateMarker(mediaEl.dataset.location);
+                if (!mediaEl || currentlyFocused === mediaEl) {
+                    return;
+                }
+                if (currentlyFocused && currentlyFocused.tagName === 'VIDEO') {
+                    currentlyFocused.removeEventListener('timeupdate', videoTimeUpdated);
+                }
+                if (mediaEl.tagName === 'VIDEO') {
+                    mediaEl.addEventListener('timeupdate', videoTimeUpdated);
+                    currentMediaLocations = api.data.getMediaByEl(mediaEl).location;
+                    updateMarker(currentMediaLocations[0]);
+                } else {
+                    updateMarker(mediaEl.dataset.location);
+                }
                 updatePolyline(mediaEl.dataset.groupID);
+                currentlyFocused = mediaEl;
             }
         });
 
