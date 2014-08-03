@@ -43,24 +43,35 @@
     dom: function(api, declare) {
 
         /**
+         * Utility function for generating HTML/XML DOM trees in the browser.
+         *
          * Returns a node with the given name. The rest are var-args, so that:
          *
          * - an object sets attributes as key/value-pairs
          * - a string/number/boolean sets the text content of the node
+         * - a node is treated as a child node
          * - an array is treated as a list of child nodes
-         *
-         * As a special case, if the node name is "<!", a comment node is created,
-         * with the following string as its content.
          *
          * For convenience, falsy values in the list of children are ignored.
          *
-         * @todo https://developer.mozilla.org/en-US/docs/Web/API/document.createTextNode
+         * There's two special cases for the name argument:
          *
-         * @example el('p', [
+         * - when "", a text node is created, with content from the 2nd arg
+         * - when "<!", a comment node is created, with content from the 2nd arg
+         *
+         * @example el('p',
+         *              el('<!', 'this is a comment'),
          *              el('a', 'Click here', {
          *                  href: '#some-location'
+         *              }),
+         *              el('', 'Text after link')
+         *          );
+         *
+         * @example el('ul',
+         *              [ 1, 2, 3, 4, 5 ].map(function(i) {
+         *                  if (i % 2) return el('li', i);
          *              })
-         *          ]);
+         *          );
          *
          * @returns https://developer.mozilla.org/en-US/docs/Web/API/element
          *
@@ -69,29 +80,27 @@
          * @license Do whatever you want with it
          */
         function el(name) {
-            var attributes = {}, text, children = [];
-            Array.prototype.slice.call(arguments, 1).forEach(function(arg) {
-                if (arg instanceof Array) {
-                    children = arg;
-                } else if (typeof arg === 'object') {
-                    attributes = arg;
-                } else if ([ 'string', 'number', 'boolean' ].indexOf(typeof arg) >= 0) {
-                    text = arg;
-                }
-            });
             if (name === '<!') {
-                return document.createComment(text);
+                return document.createComment(arguments[1]);
+            } else if (name === '') {
+                return document.createTextNode(arguments[1]);
             }
             var node = document.createElement(name);
-            Object.keys(attributes).forEach(function(key) {
-                node.setAttribute(key, attributes[key]);
-            });
-            if (text) {
-                node.textContent = text;
-            }
-            children.forEach(function(child) {
-                if (child) {
-                    node.appendChild(child);
+            Array.prototype.slice.call(arguments, 1).forEach(function(arg) {
+                if (arg instanceof Array) {
+                    arg.forEach(function(child) {
+                        child && node.appendChild(child);
+                    });
+                } else if (typeof arg === 'object') {
+                    if (arg.nodeType && arg.nodeName) {
+                        node.appendChild(arg);
+                    } else {
+                        Object.keys(arg).forEach(function(key) {
+                            node.setAttribute(key, arg[key]);
+                        });
+                    }
+                } else if ([ 'string', 'number', 'boolean' ].indexOf(typeof arg) >= 0) {
+                    node.textContent = arg;
                 }
             });
             return node;
