@@ -28,12 +28,12 @@
                 '#91aeb8'
             ],
             TRAVEL_TYPE_COLORS: {
-                WALK: 'red',
-                BUS: 'blue',
-                METRO: 'orange',
-                TAXI: 'yellow',
-                CABLECAR: 'black',
-                unknown: 'darkgray'
+                WALK: '#DB3340',
+                BUS: '#1BB4D6',
+                METRO: '#5EB240',
+                TAXI: '#FF0295',
+                CABLECAR: '#069E9E',
+                unknown: '#E0E4CC'
             },
             PRELOAD_BUFFER: 5 // how many media elements to load in addition to the current one
         });
