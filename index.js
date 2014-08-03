@@ -159,6 +159,7 @@
         }
 
         getParallel({
+            config: 'config.json',
             media: 'media.json',
             tracks: 'tracks.json'
         }, function(data) {
@@ -185,6 +186,19 @@
 
         var el = api.dom.el;
         var plt = api.config.DAY_THEME_PALETTE;
+
+        Object.keys(api.data.config.headerContent).forEach(function(key) {
+            api.dom.header.querySelector('#config-' + key).innerText = api.data.config.headerContent[key];
+        });
+
+        el(api.dom.header.querySelector('#config-infoBoxContent'),
+            Object.keys(api.data.config.infoBoxContent).map(function(key) {
+                return el('li',
+                    el('div', { 'class': 'spec-title' }, key),
+                    el('div', api.data.config.infoBoxContent[key])
+                );
+            })
+        );
 
         api.data.media.forEach(function(group, index) {
             api.dom.dayList.appendChild(
