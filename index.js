@@ -383,6 +383,13 @@
 
         var currentlyFocused;
 
+        function getReadableDate(date) {
+            var dateObj = new Date(date);
+            var weekdays = [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            var months = [ 'January', 'February', 'March', 'April', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            return weekdays[dateObj.getDay()] + ' ' + months[dateObj.getMonth()] + ' ' + dateObj.getDate() + '&nbsp;&nbsp;&nbsp;&nbsp; ' + dateObj.getHours() + ':' + dateObj.getMinutes();
+        }
+
         declare({
             focusMediaItem: function(mediaEl) {
                 if (!mediaEl || currentlyFocused === mediaEl) { return }
@@ -392,7 +399,7 @@
                 var groupIndex = api.data.media.indexOf(group);
                 aside.querySelector('h2').innerText = group.title;
                 aside.querySelector('h2').style.background = api.config.DAY_THEME_PALETTE[groupIndex % api.config.DAY_THEME_PALETTE.length];
-                aside.querySelector('pre').innerText = mediaEl.dataset.timestamp + '\n' + (mediaEl.dataset.comment || '');
+                aside.querySelector('div.image-info').innerHTML = getReadableDate(mediaEl.dataset.timestamp) + '<span>' + (mediaEl.dataset.comment + '</span>' || '');
                 api.map.focusMediaItem(mediaEl);
             }
         });
@@ -420,7 +427,7 @@
                 el.setAttribute('controls', 'controls');
                 el.setAttribute('muted', 'muted');
             } else {
-                el = document.createElement('pre');
+                el = document.createElement('div.image-info');
                 el.innerText = 'Unknown media type: ' + media.url;
             }
             return el;

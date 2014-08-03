@@ -152,23 +152,18 @@ aside {
     position: absolute;
     top: 0;
     left: 0;
-    width: 500px;
-    padding: 20px 30px;
+    width: 450px;
     height: 200vh;
     background: whitesmoke;
     overflow: hidden;
 }
 
 aside h2 {
-  margin: 0 0 30px 0;
+  margin: 0;
   padding: 0;
   font-size: 80px;
   color: white;
   padding: 5px 20px 17px 20px;
-}
-
-aside #map-container {
-  border: 1px solid #aaa;
 }
 
 aside.active {
@@ -178,6 +173,7 @@ aside.active {
 }
 
 aside > ul {
+    background: #E9E7D7;
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -195,10 +191,25 @@ aside > ul > li.active {
     display: block;
 }
 
+aside .image-info {
+  height: 100%;
+  width: 100%;
+  background: rgb(70, 70, 70);
+  padding: 20px;
+  color: white;
+  font-size: 20px;
+}
+
+aside .image-info span {
+  display: block;
+  font-size: 25px;
+  margin-top: 20px;
+}
+
 main {
     background: #22221f;
     position: relative;
-    padding: 30px 30px 0 530px;
+    padding: 30px 30px 0 490px;
 }
 
 main > img,
