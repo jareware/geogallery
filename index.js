@@ -54,10 +54,11 @@
          *
          * For convenience, falsy values in the list of children are ignored.
          *
-         * There's two special cases for the name argument:
+         * There's three special cases for the name argument:
          *
          * - when "", a text node is created, with content from the 2nd arg
          * - when "<!", a comment node is created, with content from the 2nd arg
+         * - when an existing node, that node is used instead of creating a new one
          *
          * @example el('p',
          *              el('<!', 'this is a comment'),
@@ -73,6 +74,10 @@
          *              })
          *          );
          *
+         * @example el(document.querySelector('#existing-root'),
+         *              el('p', 'New node added under root')
+         *          );
+         *
          * @returns https://developer.mozilla.org/en-US/docs/Web/API/element
          *
          * @link https://gist.github.com/jareware/8dc0cc1a948c122edce0
@@ -80,19 +85,22 @@
          * @license Do whatever you want with it
          */
         function el(name) {
+            function isNode(n) {
+                return typeof n === 'object' && n.nodeType && n.nodeName;
+            }
             if (name === '<!') {
                 return document.createComment(arguments[1]);
             } else if (name === '') {
                 return document.createTextNode(arguments[1]);
             }
-            var node = document.createElement(name);
+            var node = isNode(name) ? name : document.createElement(name);
             Array.prototype.slice.call(arguments, 1).forEach(function(arg) {
                 if (arg instanceof Array) {
                     arg.forEach(function(child) {
                         child && node.appendChild(child);
                     });
                 } else if (typeof arg === 'object') {
-                    if (arg.nodeType && arg.nodeName) {
+                    if (isNode(arg)) {
                         node.appendChild(arg);
                     } else {
                         Object.keys(arg).forEach(function(key) {
