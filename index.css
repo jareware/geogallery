@@ -20,132 +20,137 @@ body.without-transition {
 }
 
 header {
+    position: relative;
     background: #F6F0EC;
-    min-height: 100vh;
+    height: 100vh;
     overflow: hidden;
-    padding: 10px 25px 30px 40px;
+    padding: 10px 40px 30px 40px;
     background: url(DSC02168.jpg) no-repeat;
     background-size: 1500px 900px;
 }
 
 header .heading {
-  width: 100%;
+    width: 100%;
 }
 
 header h1 {
-  font-size: 120px;
-  margin: 0;
-  font-weight: 200;
-  text-transform: uppercase;
+    font-size: 120px;
+    margin: 0;
+    font-weight: 200;
+    text-transform: uppercase;
 }
 
 header span {
-  font-size: 30px;
-  margin: 0 0 0 12px;
-  color: whitesmoke;
-  font-weight: 200;
+    font-size: 30px;
+    margin: 0 0 0 12px;
+    color: whitesmoke;
+    font-weight: 200;
 }
 
 header .header-box {
-  overflow: hidden;
-  position: relative;
-  color: white;
-  margin: 40px 0;
-  width: 42%;
-  height: 330px;
-  padding: 30px;
-  font-size: 22px;
-  line-height: 25px;
+    overflow: hidden;
+    position: relative;
+    color: white;
+    margin: 30px 0;
+    width: 400px;
+    height: 350px;
+    font-size: 20px;
+    line-height: 24px;
 }
 
 .overlay-layer {
-  position: absolute;
-  opacity: 0.6;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background: #111;
+    position: absolute;
+    opacity: 0.6;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: #111;
 }
 
 header .header-box h2 {
-  position: absolute;
-  top: 40px;
-  left: 25px;
-  margin: 0;
-  font-size: 40px;
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    margin: 0;
+    font-size: 30px;
 }
 
 header ul.trip-specs {
-  position: absolute;
-  top: 100px;
-  left: 30px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
+    position: absolute;
+    top: 65px;
+    left: 30px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
 }
 
 header ul.trip-specs li {
-  margin: 0;
-  padding: 15px 6px;
-  overflow: hidden;
+    margin: 0;
+    padding: 12px 6px;
+    overflow: hidden;
+    width: 330px;
 }
 
 header ul.trip-specs li div {
-  float: left;
+    float: left;
 }
 
 header ul.trip-specs li div:first-child {
-  width: 180px;
-  margin-right: 15px;
+    color: #b4baa0;
+    width: 100%;
+    font-size: 16px;
+    line-height: 30px;
 }
 
 header ul.trip-specs li div:last-child {
-  width: 300px;
+    width: 300px;
 }
 
 header .header-days {
-  width: 105%;
-  background: WHITESMOKE;
-  margin: 0 0 -30px -40px;
-  overflow: hidden;
+    background: WHITESMOKE;
+    overflow: hidden;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
 }
 
 header .header-days ul {
-  list-style: none;
-  margin: 0;
-  padding: 30px;
-  overflow: hidden;
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 25px 34px;
+    overflow: hidden;
 }
 
 header .header-days li {
-  float: left;
-  width: 13.1%;
-  margin: 0 14px 14px 0;
-  position: relative;
-  height: 150px;
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center center;
+    margin: 0 7px;
+    position: relative;
+    height: 150px;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    flex: 1;
 }
 
 header .header-days li .overlay-layer {
-  opacity: 0.9;
-  height: 50px;
-  top: auto;
-  bottom: 0;
+    opacity: 0.9;
+    height: 50px;
+    top: auto;
+    bottom: 0;
 }
 
 header .header-days .day-title {
-  position: absolute;
-  bottom: 3px;
-  top: 0;
-  left: 0;
-  right: 0;
-  color: white;
-  padding: 6px 8px 10px 10px;
-  font-size: 30px;
-  line-height: 240px;
+    position: absolute;
+    bottom: 3px;
+    top: 0;
+    left: 0;
+    right: 0;
+    color: white;
+    padding: 6px 8px 10px 10px;
+    font-size: 30px;
+    line-height: 240px;
 }
 
 aside {
@@ -159,11 +164,11 @@ aside {
 }
 
 aside h2 {
-  margin: 0;
-  padding: 0;
-  font-size: 80px;
-  color: white;
-  padding: 5px 20px 17px 20px;
+    margin: 0;
+    padding: 0;
+    font-size: 80px;
+    color: white;
+    padding: 5px 20px 17px 20px;
 }
 
 aside.active {
@@ -173,9 +178,9 @@ aside.active {
 }
 
 aside > ul {
-    background: #E9E7D7;
+    background: #3C3C3A;
+    padding: 0 10px;
     margin: 0;
-    padding: 0;
     overflow: hidden;
 }
 
@@ -192,18 +197,19 @@ aside > ul > li.active {
 }
 
 aside .image-info {
-  height: 100%;
-  width: 100%;
-  background: rgb(70, 70, 70);
-  padding: 20px;
-  color: white;
-  font-size: 20px;
+    height: 100%;
+    width: 100%;
+    background: rgb(70, 70, 70);
+    padding: 20px 15px;
+    color: #c4c4c4;
+    font-size: 16px;
 }
 
 aside .image-info span {
-  display: block;
-  font-size: 25px;
-  margin-top: 20px;
+    display: block;
+    font-size: 23px;
+    margin-top: 20px;
+    color: #ddd;
 }
 
 main {
@@ -239,4 +245,22 @@ main > img.portrait {
 #map-container {
     width: 100%;
     height: 500px;
+}
+
+@media (max-width: 1280px) {
+    header h1 {
+        font-size: 100px;
+    }
+}
+
+@media (max-width: 1160px) {
+    header h1 {
+        font-size: 80px;
+    }
+}
+
+@media (max-width: 950px) {
+    header h1 {
+        font-size: 70px;
+    }
 }
