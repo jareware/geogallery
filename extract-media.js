@@ -2,12 +2,12 @@ var path = require('path');
 var fs = require('fs');
 var exec = require('child_process').exec;
 
-var INPUT_PATH = 'images';
+var INPUT_PATHS = [ 'images', 'videos' ];
 var DEFAULT_TIMEZONE = '+00:00';
 var EXIFTOOL_CMD = 'exiftool -GPSPosition -CreateDate -ImageDescription -coordFormat "%+.6f" -dateFormat "%Y-%m-%d %H:%M:%S" -json';
 var OUTPUT_FILE = 'media.json';
 
-processFiles(INPUT_PATH, function(err, mediaItems) {
+processFiles(INPUT_PATHS, function(err, mediaItems) {
     if (err) {
         console.log('ERROR:', err);
     } else {
@@ -16,8 +16,16 @@ processFiles(INPUT_PATH, function(err, mediaItems) {
     }
 });
 
-function processFiles(fromPath, callback) {
-    var inputFiles = fs.readdirSync(fromPath).filter(function(fileName) {
+function listFiles(fromPaths) {
+    return fromPaths.reduce(function(memo, fromPath) {
+        return memo.concat(fs.readdirSync(fromPath).map(function(fileName) {
+            return path.join(fromPath, fileName);
+        }));
+    }, []);
+}
+
+function processFiles(fromPaths, callback) {
+    var inputFiles = listFiles(fromPaths).filter(function(fileName) {
         return path.extname(fileName).toLowerCase() === '.jpg';
     });
     var outputItems = [];
@@ -31,13 +39,13 @@ function processFiles(fromPath, callback) {
 }
 
 function processImageFile(fileName, callback) {
-    var cmd = 'cd "' + INPUT_PATH + '"; ' + EXIFTOOL_CMD + ' "' + fileName + '"';
+    var cmd = EXIFTOOL_CMD + ' "' + fileName + '"';
     exec(cmd, function(err, stdout) {
         try {
             if (err) throw err;
             var exif = JSON.parse(stdout)[0];
             callback(null, {
-                url: 'images/' + exif.SourceFile,
+                url: exif.SourceFile,
                 timestamp: exif.CreateDate + DEFAULT_TIMEZONE,
                 comment: (exif.ImageDescription || '').trim(),
                 location: exif.GPSPosition ? exif.GPSPosition.split(', ').map(parseFloat) : null
