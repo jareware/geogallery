@@ -2,58 +2,56 @@ var path = require('path');
 var fs = require('fs');
 var exec = require('child_process').exec;
 
-var INPUT_PATH = '/path/to/source';
-var EXIFTOOL_CMD = 'exiftool -GPSPosition -CreateDate -ImageDescription -coordFormat "%+.6f" -dateFormat "%Y-%m-%d %H:%M:%S+00:00" -json';
-var EXEC_COUNT = 8;
+var INPUT_PATH = 'images';
+var DEFAULT_TIMEZONE = '+00:00';
+var EXIFTOOL_CMD = 'exiftool -GPSPosition -CreateDate -ImageDescription -coordFormat "%+.6f" -dateFormat "%Y-%m-%d %H:%M:%S" -json';
 var OUTPUT_FILE = 'media.json';
 
-var commands = fs.readdirSync(INPUT_PATH).filter(function(fileName) {
-    return path.extname(fileName).toLowerCase() === '.jpg';
-}).map(function(fileName) {
-    return 'cd "' + INPUT_PATH + '"; ' + EXIFTOOL_CMD + ' "' + fileName + '"';
+processFiles(INPUT_PATH, function(err, mediaItems) {
+    if (err) {
+        console.log('ERROR:', err);
+    } else {
+        var output = JSON.stringify(groupMediaItems(mediaItems), null, 4);
+        fs.writeFileSync(OUTPUT_FILE, output);
+    }
 });
 
-function getExecutor(maybeDone) {
-    return function next() {
-        if (commands.length) {
-            exec(commands.pop(), function(err, stdout) {
-                if (err) {
-                    console.log(err);
-                } else {
-                    results.push(stdout);
-                    next();
-                }
-            });
-        } else {
-            maybeDone();
-        }
-    }
+function processFiles(fromPath, callback) {
+    var inputFiles = fs.readdirSync(fromPath).filter(function(fileName) {
+        return path.extname(fileName).toLowerCase() === '.jpg';
+    });
+    var outputItems = [];
+    inputFiles.forEach(function(fileName) {
+        processImageFile(fileName, function(err, mediaItem) {
+            if (err) return callback(err);
+            outputItems.push(mediaItem);
+            if (outputItems.length === inputFiles.length) callback(null, outputItems);
+        })
+    });
 }
 
-var count = commands.length;
-var results = [];
-
-new Array(EXEC_COUNT + 1).join('x').split('').forEach(function() {
-    getExecutor(function() {
-        if (results.length === count) {
-            done(results);
+function processImageFile(fileName, callback) {
+    var cmd = 'cd "' + INPUT_PATH + '"; ' + EXIFTOOL_CMD + ' "' + fileName + '"';
+    exec(cmd, function(err, stdout) {
+        try {
+            if (err) throw err;
+            var exif = JSON.parse(stdout)[0];
+            callback(null, {
+                url: 'images/' + exif.SourceFile,
+                timestamp: exif.CreateDate + DEFAULT_TIMEZONE,
+                comment: (exif.ImageDescription || '').trim(),
+                location: exif.GPSPosition ? exif.GPSPosition.split(', ').map(parseFloat) : null
+            });
+        } catch (e) {
+            callback(e)
         }
-    })();
-});
+    });
+}
 
-function done(results) {
+function groupMediaItems(mediaItems) {
     var groups = {};
-    results.map(function(string) {
-        return JSON.parse(string)[0];
-    }).map(function(result) {
-        return {
-            url: 'images/' + result.SourceFile,
-            timestamp: result.CreateDate,
-            comment: (result.ImageDescription || '').trim(),
-            location: result.GPSPosition ? result.GPSPosition.split(', ').map(parseFloat) : null
-        };
-    }).forEach(function(image) {
-        var groupID = image.timestamp.split(' ')[0];
+    mediaItems.forEach(function(item) {
+        var groupID = item.timestamp.split(' ')[0];
         if (!groups[groupID]) {
             groups[groupID] = {
                 groupID: groupID,
@@ -62,7 +60,7 @@ function done(results) {
                 media: []
             };
         }
-        groups[groupID].media.push(image);
+        groups[groupID].media.push(item);
     });
     groups = Object.keys(groups).map(function(key) {
         return groups[key];
@@ -75,5 +73,5 @@ function done(results) {
             return a.timestamp > b.timestamp ? 1 : -1;
         });
     });
-    fs.writeFileSync(OUTPUT_FILE, JSON.stringify(groups, undefined, 4));
+    return groups;
 }
