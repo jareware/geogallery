@@ -1,15 +1,16 @@
-var path = require('path');
-var fs = require('fs');
+var path = require('path'); // http://nodejs.org/api/path.html
+var fs = require('fs'); // http://nodejs.org/api/fs.html
 var exec = require('child_process').exec;
 
 var INPUT_PATHS = [ 'images', 'videos' ];
 var DEFAULT_TIMEZONE = '+00:00';
+var DEFAULT_GROUP = 'Ungrouped';
 var EXIFTOOL_CMD = 'exiftool -GPSPosition -CreateDate -ImageDescription -coordFormat "%+.6f" -dateFormat "%Y-%m-%d %H:%M:%S" -json';
 var OUTPUT_FILE = 'media.json';
 
 processFiles(INPUT_PATHS, function(err, mediaItems) {
     if (err) {
-        console.log('ERROR:', err);
+        throw err;
     } else {
         var output = JSON.stringify(groupMediaItems(mediaItems), null, 4);
         fs.writeFileSync(OUTPUT_FILE, output);
@@ -25,17 +26,25 @@ function listFiles(fromPaths) {
 }
 
 function processFiles(fromPaths, callback) {
-    var inputFiles = listFiles(fromPaths).filter(function(fileName) {
-        return path.extname(fileName).toLowerCase() === '.jpg';
-    });
     var outputItems = [];
-    inputFiles.forEach(function(fileName) {
-        processImageFile(fileName, function(err, mediaItem) {
-            if (err) return callback(err);
-            outputItems.push(mediaItem);
-            if (outputItems.length === inputFiles.length) callback(null, outputItems);
-        })
-    });
+    var checkIfDone = function(err, mediaItem) {
+        if (err) return callback(err);
+        outputItems.push(mediaItem);
+        if (outputItems.length === inputCount) callback(null, outputItems);
+    };
+    var inputCount = listFiles(fromPaths).map(function(fileName) {
+        switch (path.extname(fileName).toLowerCase()) {
+            case '.jpg':
+                processImageFile(fileName, checkIfDone);
+                return true; // this file counts
+            case '.mp4':
+                processVideoFile(fileName, checkIfDone);
+                return true; // this file counts
+        }
+        return false; // this file doesn't count
+    }).filter(function(willBeProcessed) {
+        return willBeProcessed;
+    }).length;
 }
 
 function processImageFile(fileName, callback) {
@@ -45,6 +54,7 @@ function processImageFile(fileName, callback) {
             if (err) throw err;
             var exif = JSON.parse(stdout)[0];
             callback(null, {
+                type: 'image',
                 url: exif.SourceFile,
                 timestamp: exif.CreateDate + DEFAULT_TIMEZONE,
                 comment: (exif.ImageDescription || '').trim(),
@@ -56,10 +66,37 @@ function processImageFile(fileName, callback) {
     });
 }
 
+function processVideoFile(fileName, callback) {
+    var item = {
+        type: 'video',
+        url: fileName,
+        timestamp: [],
+        comment: '',
+        location: []
+    };
+    var candidate = path.join(path.dirname(fileName), path.basename(fileName, path.extname(fileName)) + '.srt');
+    fs.readFile(candidate, function(err, subtitleContent) {
+        if (err) return callback(null, item); // TODO: Implement default timestamp based on file created date..?
+        (subtitleContent + '').split('\n\n').forEach(function(metadata) {
+            metadata = metadata.split('\n');
+            if (metadata[2] && metadata[3]) {
+                item.timestamp.push(metadata[2]);
+                var coords = parseWGS84String(metadata[3]);
+                item.location.push([ coords.lat, coords.lng ]);
+            }
+        });
+        callback(null, item);
+    });
+}
+
+function timestampToString(item) {
+    return (Array.isArray(item.timestamp) ? item.timestamp[0] : item.timestamp) || '';
+}
+
 function groupMediaItems(mediaItems) {
     var groups = {};
     mediaItems.forEach(function(item) {
-        var groupID = item.timestamp.split(' ')[0];
+        var groupID = timestampToString(item).split(' ')[0] || DEFAULT_GROUP;
         if (!groups[groupID]) {
             groups[groupID] = {
                 groupID: groupID,
@@ -76,10 +113,44 @@ function groupMediaItems(mediaItems) {
         return a.groupID > b.groupID ? 1 : -1;
     });
     groups.forEach(function(group, index) {
-        group.title = 'Day ' + (index + 1);
+        group.title = group.groupID === DEFAULT_GROUP ? DEFAULT_GROUP : 'Day ' + (index + 1);
         group.media.sort(function(a, b) {
-            return a.timestamp > b.timestamp ? 1 : -1;
+            return timestampToString(a) > timestampToString(b) ? 1 : -1;
         });
     });
     return groups;
+}
+
+/**
+ * Converts the given string representation of WGS84 coordinates into a standard lat/lng object.
+ *
+ * @example 60 deg 08.2151' N, 24 deg 25.6136' E
+ * @example 43°38'19.39"N,116°14'28.86"W
+ * @example +43.6387194°, -116.2413500°
+ *
+ * For convenience (and to avoid "Cannot read property 'lat' of undefined" errors), always returns an
+ * object with the aforementioned keys. For invalid input, the VALUES of the keys will be undefined.
+ *
+ * @returns https://developers.google.com/maps/documentation/javascript/reference#LatLngLiteral
+ *
+ * @link https://gist.github.com/jareware/083ecc072bab29130415
+ * @author Jarno Rantanen <jarno@jrw.fi>
+ * @license Do whatever you want with it
+ */
+function parseWGS84String(input) {
+    return (typeof input === 'string' ? input : '0,0').replace(/deg/gi, '°').split(',').map(function(part) {
+        return (part.match(/([+-]?\d+(?:\.\d+)?\s*[°'"]|[nesw])+?/gi) || []).reduce(function(memo, component) {
+            var unit = component && component[component.length - 1].toUpperCase();
+            var power = '°\'"'.indexOf(unit);
+            if (power >= 0) {
+                return (memo || 0) + parseFloat(component) / Math.pow(60, power);
+            } else if ('SW'.indexOf(unit) >= 0) {
+                return (memo || 0) * -1;
+            }
+            return memo;
+        }, null);
+    }).reduce(function(memo, part, index) {
+        memo[index ? 'lng' : 'lat'] = typeof part === 'number' ? part : undefined;
+        return memo;
+    }, { lat: undefined, lng: undefined });
 }
