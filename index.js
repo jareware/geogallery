@@ -404,6 +404,7 @@
         api.scroll.on(onScroll);
 
         var currentlyFocused;
+        var currentMediaTimestamps;
 
         function getReadableDate(date) {
             var dateObj = new Date(date);
@@ -412,17 +413,38 @@
             return weekdays[dateObj.getDay()] + ' ' + months[dateObj.getMonth()] + ' ' + dateObj.getDate() + '&nbsp;&nbsp;&nbsp;&nbsp; ' + dateObj.getHours() + ':' + dateObj.getMinutes();
         }
 
+        function showUpdatedTimestamp(timestamp) {
+            aside.querySelector('div.image-info p:first-child').innerHTML = getReadableDate(timestamp);
+        }
+
+        // @see https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Media_events
+        function videoTimeUpdated() {
+            var timeIndex = Math.round(currentlyFocused.currentTime);
+            var timestamp = currentMediaTimestamps[timeIndex] || currentMediaTimestamps[currentMediaTimestamps.length - 1];
+            showUpdatedTimestamp(timestamp);
+        }
+
         declare({
             focusMediaItem: function(mediaEl) {
                 if (!mediaEl || currentlyFocused === mediaEl) { return }
-                currentlyFocused = mediaEl;
                 var group = api.data.getByGroupID(api.data.media, mediaEl.dataset.groupID);
                 if (!group) { return }
                 var groupIndex = api.data.media.indexOf(group);
                 aside.querySelector('h2').innerText = group.title;
                 aside.querySelector('h2').style.background = api.config.DAY_THEME_PALETTE[groupIndex % api.config.DAY_THEME_PALETTE.length];
-                aside.querySelector('div.image-info').innerHTML = getReadableDate(mediaEl.dataset.timestamp) + '<span>' + (mediaEl.dataset.comment + '</span>' || '');
+                aside.querySelector('div.image-info p:last-child').innerHTML = mediaEl.dataset.comment || '';
+                if (currentlyFocused && currentlyFocused.tagName === 'VIDEO') {
+                    currentlyFocused.removeEventListener('timeupdate', videoTimeUpdated);
+                }
+                if (mediaEl.tagName === 'VIDEO') {
+                    mediaEl.addEventListener('timeupdate', videoTimeUpdated);
+                    currentMediaTimestamps = api.data.getMediaByEl(mediaEl).timestamp;
+                    showUpdatedTimestamp(currentMediaTimestamps[0]);
+                } else {
+                    showUpdatedTimestamp(mediaEl.dataset.timestamp);
+                }
                 api.map.focusMediaItem(mediaEl);
+                currentlyFocused = mediaEl;
             }
         });
 

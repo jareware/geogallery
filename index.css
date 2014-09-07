@@ -205,7 +205,11 @@ aside .image-info {
     font-size: 16px;
 }
 
-aside .image-info span {
+aside .image-info p:first-child {
+    margin-top: 0;
+}
+
+aside .image-info p:last-child {
     display: block;
     font-size: 23px;
     margin-top: 20px;
