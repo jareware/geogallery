@@ -3,7 +3,7 @@ var fs = require('fs'); // http://nodejs.org/api/fs.html
 var exec = require('child_process').exec;
 
 var INPUT_PATHS = [ 'images', 'videos' ];
-var DEFAULT_TIMEZONE = '+00:00';
+var DEFAULT_TIMEZONE = '+09:00';
 var DEFAULT_GROUP = 'Ungrouped';
 var EXIFTOOL_CMD = 'exiftool -GPSPosition -CreateDate -ImageDescription -coordFormat "%+.6f" -dateFormat "%Y-%m-%d %H:%M:%S" -json';
 var OUTPUT_FILE = 'media.json';
