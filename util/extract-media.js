@@ -5,7 +5,7 @@ var exec = require('child_process').exec;
 var INPUT_PATHS = [ 'images', 'videos' ];
 var DEFAULT_TIMEZONE = '+09:00';
 var DEFAULT_GROUP = 'Ungrouped';
-var EXIFTOOL_CMD = 'exiftool -GPSPosition -CreateDate -ImageDescription -coordFormat "%+.6f" -dateFormat "%Y-%m-%d %H:%M:%S" -json';
+var EXIFTOOL_CMD = 'exiftool -GPSPosition -CreateDate -ImageDescription -coordFormat "%+.6f" -dateFormat "%Y-%m-%d %H:%M:%S " -json';
 var OUTPUT_FILE = 'media.json';
 
 processFiles(INPUT_PATHS, function(err, mediaItems) {
@@ -90,13 +90,27 @@ function processVideoFile(fileName, callback) {
 }
 
 function timestampToString(item) {
-    return (Array.isArray(item.timestamp) ? item.timestamp[0] : item.timestamp) || '';
+    var ts = (Array.isArray(item.timestamp) ? item.timestamp[0] : item.timestamp) + '';
+    if (!ts.match(/^\d+-\d+-\d+ \d+:\d+:\d+ [+-]\d+:\d+$/)) {
+        throw new Error('Non-standard date "' + ts + '" encountered, expecting e.g. "2014-01-01 12:34:56 +3:00", related item is:\n' + JSON.stringify(item, undefined, 4));
+    }
+    return ts;
+}
+
+function generateGroupID(forItem) {
+    var tsPieces = timestampToString(forItem).split(' ');
+    var hourPart = new Date('1970-01-01 ' + tsPieces[1]).getHours();
+    if (hourPart < 3) { // with timestamps between midnight and 03:00, group the images with the PREVIOUS date, as it usually makes more narrative sense
+        return new Date(new Date(tsPieces[0]).getTime() - 24 * 60 * 60 * 1000).toISOString().substring(0, 10);
+    } else {
+        return tsPieces[0];
+    }
 }
 
 function groupMediaItems(mediaItems) {
     var groups = {};
     mediaItems.forEach(function(item) {
-        var groupID = timestampToString(item).split(' ')[0] || DEFAULT_GROUP;
+        var groupID = generateGroupID(item) || DEFAULT_GROUP;
         if (!groups[groupID]) {
             groups[groupID] = {
                 groupID: groupID,
