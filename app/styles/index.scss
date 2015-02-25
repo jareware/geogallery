@@ -32,8 +32,8 @@ header {
     height: 100vh;
     overflow: hidden;
     padding: 10px 40px 30px 40px;
-    background: url(DSC02168.jpg) no-repeat;
-    background-size: 1500px 900px;
+    background: url(../bg/bg.jpg) no-repeat;
+    background-size: cover;
 }
 
 header .heading {
@@ -140,6 +140,11 @@ header .header-days li {
     background-position: center center;
     flex: 1;
     cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.16);
+}
+
+header .header-days li:hover {
+    opacity: 0.8;
 }
 
 header .header-days li .overlay-layer {
