@@ -202,7 +202,7 @@
 
         api.data.media.forEach(function(group, index) {
             api.dom.dayList.appendChild(
-                el('li', { style: 'background-image: url("' + group.thumbnailURL + '")' }, [
+                el('li', { style: 'background-image: url("' + group.thumbnailURL + '")', 'data-link': group.media[0].url }, [
                     el('div', { 'class': 'overlay-layer', style: 'background: ' + plt[index % plt.length] }),
                     el('div', { 'class': 'day-title' }, group.title)
                 ])
@@ -551,8 +551,22 @@
             },
             goToPrev: function() {
                 setActiveEl(activeMediaEl ? activeMediaEl.previousSibling : null, true);
-            }
+            },
+            setActiveEl: setActiveEl
         });
+
+    },
+
+    headerDateNavi: function(api, declare) {
+
+        $(api.dom.dayList).on('click', 'li', function() {
+            var link = $(this).data('link');
+
+            var targetImage = $('img[data-src="' + link + '"]')[0];
+            api.media.setActiveEl(targetImage, true);
+        });
+
+        declare();
 
     },
 
