@@ -179,6 +179,14 @@ aside h2 {
     padding: 5px 20px 17px 20px;
 }
 
+aside h2 i {
+    font-size: 50px !important;
+    position: absolute;
+    top: 30px;
+    right: 23px;
+    cursor: pointer;
+}
+
 aside.active {
     position: fixed;
     height: auto;
@@ -215,6 +223,10 @@ aside .image-info {
 
 aside .image-info p:first-child {
     margin-top: 0;
+}
+
+aside .image-info p:first-child span {
+    font-size: 30px;
 }
 
 aside .image-info p:last-child {

@@ -409,8 +409,14 @@
         function getReadableDate(date) {
             var dateObj = new Date(date);
             var weekdays = [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-            var months = [ 'January', 'February', 'March', 'April', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-            return weekdays[dateObj.getDay()] + ' ' + months[dateObj.getMonth()] + ' ' + dateObj.getDate() + '&nbsp;&nbsp;&nbsp;&nbsp; ' + dateObj.getHours() + ':' + dateObj.getMinutes();
+            var months = [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+            function addZeroPad(minutes) {
+                if (parseInt(minutes, 10) < 10) { minutes = '0' + minutes; }
+                return minutes;
+            }
+
+            return '<span>' + weekdays[dateObj.getDay()] + '</span> &nbsp;&nbsp;&nbsp;&nbsp;' + months[dateObj.getMonth()] + ' ' + dateObj.getDate() + ' &nbsp&nbsp&nbsp' + dateObj.getFullYear() + '&nbsp;&nbsp;&nbsp;&nbsp; <span>' + dateObj.getUTCHours() + ':' + addZeroPad(dateObj.getUTCMinutes() + '</span>');
         }
 
         function showUpdatedTimestamp(timestamp) {
@@ -430,9 +436,15 @@
                 var group = api.data.getByGroupID(api.data.media, mediaEl.dataset.groupID);
                 if (!group) { return }
                 var groupIndex = api.data.media.indexOf(group);
-                aside.querySelector('h2').innerText = group.title;
+                aside.querySelector('h2').innerHTML = group.title + '<i class="fa fa-chevron-up"></i>';
                 aside.querySelector('h2').style.background = api.config.DAY_THEME_PALETTE[groupIndex % api.config.DAY_THEME_PALETTE.length];
                 aside.querySelector('div.image-info p:last-child').innerHTML = mediaEl.dataset.comment || '';
+
+                // TODO: Sorry
+                $(aside.querySelector('h2 i')).on('click', function() {
+                    $(window).scrollTop(0);
+                });
+
                 if (currentlyFocused && currentlyFocused.tagName === 'VIDEO') {
                     currentlyFocused.removeEventListener('timeupdate', videoTimeUpdated);
                 }
