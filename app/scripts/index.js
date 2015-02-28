@@ -407,7 +407,7 @@
         var currentMediaTimestamps;
 
         function getReadableDate(date) {
-            var dateObj = new Date(date);
+            var dateObj = new Date(date.split(' ').slice(0,2).join(' ')); // drop the TZ info (display as if local time)
             var weekdays = [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
             var months = [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -416,7 +416,7 @@
                 return minutes;
             }
 
-            return '<span>' + weekdays[dateObj.getDay()] + '</span> &nbsp;&nbsp;&nbsp;&nbsp;' + months[dateObj.getMonth()] + ' ' + dateObj.getDate() + ' &nbsp&nbsp&nbsp' + dateObj.getFullYear() + '&nbsp;&nbsp;&nbsp;&nbsp; <span>' + dateObj.getUTCHours() + ':' + addZeroPad(dateObj.getUTCMinutes() + '</span>');
+            return '<span>' + weekdays[dateObj.getDay()] + '</span> &nbsp;&nbsp;&nbsp;&nbsp;' + months[dateObj.getMonth()] + ' ' + dateObj.getDate() + ' &nbsp&nbsp&nbsp' + dateObj.getFullYear() + '&nbsp;&nbsp;&nbsp;&nbsp; <span>' + dateObj.getHours() + ':' + addZeroPad(dateObj.getMinutes() + '</span>');
         }
 
         function showUpdatedTimestamp(timestamp) {
