@@ -131,6 +131,10 @@
     data: function(api, declare) {
 
         function getJSON(url, callback) {
+            if (window.geogalleryInlinedData) {
+                callback(window.geogalleryInlinedData[url]);
+                return;
+            }
             var request = new XMLHttpRequest();
             request.open('GET', url, true);
             request.onload = function() {

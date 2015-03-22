@@ -1,0 +1,40 @@
+#!/usr/bin/env node
+
+/**
+ * This script collects all gallery files and writes them to a single, final HTML file.
+ *
+ * Read-only script, only writes to stdout.
+ *
+ * @example $ geogallery-assemble input-path/ > input-path/index.html
+ */
+
+var path = require('path'); // http://nodejs.org/api/path.html
+var fs = require('fs'); // http://nodejs.org/api/fs.html
+
+function readHere(filename) {
+    return fs.readFileSync(__dirname + '/../app/' + filename) + '';
+}
+
+function readThere(filename) {
+    try {
+        return fs.readFileSync(process.argv[2] + '/' + filename) + '';
+    } catch (e) {
+        return null; // that is, the file's not present
+    }
+}
+
+console.log(
+    readHere('index.html')
+        .replace(/<link href="styles\/index.css"[^>]*\/>/, function() {
+            return '<style>\n' + readHere('styles/index.scss') + '\n</style>';
+        })
+        .replace(/<script src="scripts\/index.js"><\/script>/, function() {
+            return '<script>\n' + readHere('scripts/index.js') + '\n</script>';
+        })
+        .replace(/<!-- geogalleryInlinedData -->/, function() {
+            var data = [ 'config.json', 'media.json', 'tracks.json'].map(function(fileName) {
+                return '"' + fileName + '":' + readThere(fileName);
+            });
+            return '<script>\nwindow.geogalleryInlinedData = { ' + data.join(',\n') + ' };\n</script>';
+        })
+);
