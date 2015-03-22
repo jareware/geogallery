@@ -17,7 +17,8 @@ var exec = require('child_process').exec;
 
 var DEFAULT_TIMEZONE = '+09:00';
 var DEFAULT_GROUP = 'Ungrouped';
-var DAY_GROUP_PREFIX = 'Day ';
+var DAY_GROUP_TPL = 'Day %';
+var DAY_FILE_TPL = 'thumbnails/day%.JPG';
 var EXIFTOOL_CMD = 'exiftool -GPSPosition -CreateDate -ImageDescription -coordFormat "%+.6f" -dateFormat "%Y-%m-%d %H:%M:%S " -json';
 
 var inputPaths = process.argv.slice(2);
@@ -144,7 +145,8 @@ function groupMediaItems(mediaItems) {
         return a.groupID > b.groupID ? 1 : -1;
     });
     groups.forEach(function(group, index) {
-        group.title = group.groupID === DEFAULT_GROUP ? DEFAULT_GROUP : DAY_GROUP_PREFIX + (index + 1);
+        group.title = group.groupID === DEFAULT_GROUP ? DEFAULT_GROUP : DAY_GROUP_TPL.replace('%', index + 1);
+        group.thumbnailURL = DAY_FILE_TPL.replace('%', index + 1);
         group.media.sort(function(a, b) {
             return timestampToString(a) > timestampToString(b) ? 1 : -1;
         });
