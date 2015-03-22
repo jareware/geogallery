@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# This script finds images from the given input path, and writes properly resized versions to the output path.
+#
+# Never overwrites existing files.
+#
+# @requires imagemagick
+#
+# @example $ geogallery-resize-media 1000 input-from/ output-to/
+
+IFS=$'\n' # @see http://unix.stackexchange.com/a/9499
+trap "exit 1" SIGINT # @see http://serverfault.com/a/105390
+
+if [ "$#" -ne 3 ]; then
+    echo "Error: Please provide exactly 3 arguments"
+    exit 1
+fi
+
+echo "Target width: $1"
+echo "Input path:   $2"
+echo "Output path:  $3"
+
+mkdir -p "$3"
+
+for input_file in $(find "$2" -type f -iname "*.jpg"); do
+
+    output_file="$3/$(basename "$input_file")"
+
+    if [ -f "$output_file" ]; then
+        echo "Refusing to overwrite existing file: $output_file"
+    else
+        echo "Writing resized image: $input_file -> $output_file"
+        convert "$input_file" -resize "$1>" "$output_file"
+    fi
+
+done
