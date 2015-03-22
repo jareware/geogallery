@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# This script finds images from the given input path, and writes properly resized versions to the output path.
+# Optionally also writes thumbnail versions of each image.
+#
+# Never overwrites existing files.
+#
+# @requires imagemagick
+#
+# @example $ geogallery-resize-media . resized-images/ thumbnails/
+
+IMAGE_MAX_WIDTH=1000
+THUMB_MAX_WIDTH=250
+
+IFS=$'\n' # @see http://unix.stackexchange.com/a/9499
+trap "exit 1" SIGINT # @see http://serverfault.com/a/105390
+
+if [ -z "$2" ]; then
+    echo "Error: Please provide at least 2 arguments"
+    exit 1
+fi
+
+echo "Input path:            $1"
+echo "Output path:           $2"
+echo "Thumbnail output path: $3"
+
+mkdir -p "$2"
+if [ ! -z "$3" ]; then
+    mkdir -p "$3"
+fi
+
+for input_file in $(find "$1" -type f -iname "*.jpg"); do
+
+    output_file="$2/$(basename "$input_file")"
+    thumb_output_file="$3/$(basename "$input_file")"
+
+    if [ -f "$output_file" ]; then
+        echo "Refusing to overwrite existing file: $output_file"
+    else
+        echo "Writing resized image:   $input_file -> $output_file"
+        convert "$input_file" -resize "$IMAGE_MAX_WIDTH>" "$output_file"
+    fi
+
+    if [ ! -z "$3" ]; then
+        if [ -f "$thumb_output_file" ]; then
+            echo "Refusing to overwrite existing file: $thumb_output_file"
+        else
+            echo "Writing thumbnail image: $input_file -> $thumb_output_file"
+            convert "$input_file" -resize "$THUMB_MAX_WIDTH>" "$thumb_output_file"
+        fi
+    fi
+
+done
