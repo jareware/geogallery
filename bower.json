@@ -1,7 +1,5 @@
 {
-  "name": "lomakuvagaltsu",
+  "name": "geogallery",
   "private": true,
-  "dependencies": {
-    "jquery": "~1.11.1"
-  }
+  "dependencies": {}
 }
