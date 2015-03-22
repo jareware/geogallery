@@ -1,21 +1,27 @@
+#!/usr/bin/env node
+
 var path = require('path'); // http://nodejs.org/api/path.html
 var fs = require('fs'); // http://nodejs.org/api/fs.html
 var exec = require('child_process').exec;
 
-var INPUT_PATHS = [ 'images', 'videos' ];
 var DEFAULT_TIMEZONE = '+09:00';
 var DEFAULT_GROUP = 'Ungrouped';
+var DAY_GROUP_PREFIX = 'Day ';
 var EXIFTOOL_CMD = 'exiftool -GPSPosition -CreateDate -ImageDescription -coordFormat "%+.6f" -dateFormat "%Y-%m-%d %H:%M:%S " -json';
-var OUTPUT_FILE = 'media.json';
 
-processFiles(INPUT_PATHS, function(err, mediaItems) {
-    if (err) {
-        throw err;
-    } else {
-        var output = JSON.stringify(groupMediaItems(mediaItems), null, 4);
-        fs.writeFileSync(OUTPUT_FILE, output);
-    }
-});
+var inputPaths = process.argv.slice(2);
+
+if (inputPaths.length) {
+    processFiles(inputPaths, function(err, mediaItems) {
+        if (err) {
+            throw err;
+        } else {
+            console.log(JSON.stringify(groupMediaItems(mediaItems), null, 4));
+        }
+    });
+} else {
+    throw new Error('Please provide one or more input paths as arguments');
+}
 
 function listFiles(fromPaths) {
     return fromPaths.reduce(function(memo, fromPath) {
@@ -127,7 +133,7 @@ function groupMediaItems(mediaItems) {
         return a.groupID > b.groupID ? 1 : -1;
     });
     groups.forEach(function(group, index) {
-        group.title = group.groupID === DEFAULT_GROUP ? DEFAULT_GROUP : 'Day ' + (index + 1);
+        group.title = group.groupID === DEFAULT_GROUP ? DEFAULT_GROUP : DAY_GROUP_PREFIX + (index + 1);
         group.media.sort(function(a, b) {
             return timestampToString(a) > timestampToString(b) ? 1 : -1;
         });
