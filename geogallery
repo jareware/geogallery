@@ -1,17 +1,26 @@
 #!/bin/bash
 # Geogallery script, v1
 
+ROOT=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd ) # @see http://stackoverflow.com/a/246128
+
+if [ -z "$1" ]; then
+    echo "Error: Please provide a source path as first argument"
+    exit 1
+fi
+
 echo -e "\nHello, welcome to creating your own geogallery."
 echo -e "\nCreating geogallery for folder in path: $1\n"
 
-if [ -e "$1" ]; then
-    rm -rf "$1/geogallery"
-    cp -rv ./app "$1/geogallery"
-    mv "$1/geogallery/styles/index.scss" "$1/geogallery/styles/index.css"
+cd "$1"
+mkdir -p geogallery/{images,thumbnails}
+cd geogallery
 
-    ./util/geogallery-resize-media 1000 "$1/FINAL_PHOTOS" "$1/geogallery/images"
-    ./util/geogallery-resize-media 250 "$1/FINAL_THUMBNAILS" "$1/geogallery/thumbnails"
-    ./util/geogallery-extract-media "$1/geogallery/images" > "$1/geogallery/media.json"
-else
-    echo "error"
-fi
+$ROOT/util/geogallery-resize-media 1000 ../FINAL_PHOTOS images
+$ROOT/util/geogallery-resize-media 500 ../FINAL_THUMBNAILS thumbnails
+$ROOT/util/geogallery-resize-media 1500 ../FINAL_BG_IMAGE .
+$ROOT/util/geogallery-extract-media images > media.json
+cp -f ../config.json .
+$ROOT/util/geogallery-assemble . > index.html
+
+# Clean up unnecessary files from target
+rm -f {config,media,tracks}.json
