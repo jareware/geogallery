@@ -137,7 +137,7 @@
                 if (request.status >= 200 && request.status < 400 || document.location.protocol === 'file:') { // with "file:" protocol, there's no response status
                     callback(JSON.parse(request.responseText));
                 } else {
-                    throw new Error('Server returned an error');
+                    callback(undefined); // e.g. data not found
                 }
             };
             request.onerror = function() {
@@ -277,6 +277,7 @@
         function updatePolyline(groupID) {
             if (groupID === currentlyDrawnGroupID) { return }
             currentlyDrawnGroupID = groupID;
+            if (!api.data.tracks) { return } // e.g. tracks.json wasn't available
             var group = api.data.getByGroupID(api.data.tracks, groupID);
             if (!group) { return }
             if (polylines) {
