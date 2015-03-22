@@ -466,24 +466,24 @@
 
         function createMediaEl(group, media) {
             var el;
-            if (media.url.match(/\.(jpg)$/)) {
+            if (media.url.match(/\.(jpg)$/i)) {
                 el = document.createElement('img');
                 el.dataset.src = media.url;
                 el.dataset.groupID = group.groupID;
-                el.dataset.location = media.location;
+                if (media.location) el.dataset.location = media.location;
                 el.dataset.timestamp = media.timestamp;
                 el.dataset.comment = media.comment;
-            } else if (media.url.match(/\.(mp4)$/)) {
+            } else if (media.url.match(/\.(mp4)$/i)) {
                 el = document.createElement('video');
                 el.dataset.src = media.url;
                 el.dataset.groupID = group.groupID;
-                el.dataset.location = media.location;
+                if (media.location) el.dataset.location = media.location;
                 el.dataset.timestamp = media.timestamp;
                 el.dataset.comment = media.comment;
                 el.setAttribute('controls', 'controls');
                 el.setAttribute('muted', 'muted');
             } else {
-                el = document.createElement('div.image-info');
+                el = document.createElement('pre');
                 el.innerText = 'Unknown media type: ' + media.url;
             }
             return el;
