@@ -4,4 +4,5 @@
 echo -e "\nHello, welcome to creating your own geogallery."
 echo -e "\nCreating geogallery for folder in path: $1\n"
 
-echo `./util/geogallery-extract-media "$1/FINAL_PHOTOS"`
+./util/geogallery-extract-media "$1/FINAL_PHOTOS" > media.json
+

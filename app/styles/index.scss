@@ -26,6 +26,18 @@ body.without-transition {
     transition: none;
 }
 
+body.no-map #map-container {
+    display: none;
+}
+
+body.no-map aside h2 {
+    padding-bottom: 110px;
+}
+
+body.no-map aside .image-info {
+    padding: 50px 20px;
+}
+
 header {
     position: relative;
     background: #F6F0EC;

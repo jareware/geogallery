@@ -237,10 +237,15 @@
 
     map: function(api, declare) {
 
-        var map = new google.maps.Map(api.dom.map, {
-            center: new google.maps.LatLng(0, 0), // TODO: Add more sensible default..?
-            zoom: 8
-        });
+        if (api.data.tracks) {
+            var map = new google.maps.Map(api.dom.map, {
+                center: new google.maps.LatLng(0, 0), // TODO: Add more sensible default..?
+                zoom: 8
+            });
+        }
+        else {
+            $('body').addClass('no-map');
+        }
 
         var marker;
 
@@ -321,7 +326,7 @@
 
         declare({
             focusMediaItem: function(mediaEl) {
-                if (!mediaEl || currentlyFocused === mediaEl) {
+                if (!mediaEl || currentlyFocused === mediaEl || !api.data.tracks) {
                     return;
                 }
                 if (currentlyFocused && currentlyFocused.tagName === 'VIDEO') {
