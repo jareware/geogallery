@@ -2,6 +2,6 @@
 # Geogallery script, v1
 
 echo -e "\nHello, welcome to creating your own geogallery."
-echo -e "\nCreating geogallery for folder in path:" $1 " \n"
+echo -e "\nCreating geogallery for folder in path: $1\n"
 
-echo `npm ./util/extract-media.js $1/FINAL_PHOTOS $1/FINAL_VIDEOS`
+echo `./util/geogallery-extract-media "$1/FINAL_PHOTOS"`

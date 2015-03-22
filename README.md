@@ -1,5 +1,8 @@
 #Creating a new geogallery
 
+Prerequisites
+- brew install exiftool
+
 1. Create a gallery folder with the following structure:
 FINAL_BG_IMAGE (containing one large image for background)
 FINAL_GPS*
