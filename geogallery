@@ -4,5 +4,13 @@
 echo -e "\nHello, welcome to creating your own geogallery."
 echo -e "\nCreating geogallery for folder in path: $1\n"
 
-./util/geogallery-extract-media "$1/FINAL_PHOTOS" > media.json
+if [ -e "$1" ]; then
+    rm -rf "$1/geogallery"
+    cp -rv ./app "$1/geogallery"
+    mv "$1/geogallery/styles/index.scss" "$1/geogallery/styles/index.css"
+    ./util/geogallery-extract-media "$1/FINAL_PHOTOS" > "$1/geogallery/media.json"
+else
+    echo "error"
+fi
+
 
