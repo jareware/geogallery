@@ -483,7 +483,7 @@
                 el.setAttribute('controls', 'controls');
                 el.setAttribute('muted', 'muted');
             } else {
-                el = document.createElement('div.image-info');
+                el = document.createElement('pre');
                 el.innerText = 'Unknown media type: ' + media.url;
             }
             return el;
