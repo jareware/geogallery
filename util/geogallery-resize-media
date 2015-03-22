@@ -16,6 +16,8 @@ if [ "$#" -ne 3 ]; then
     exit 1
 fi
 
+PARALLELIZE_BY=8
+
 echo "Target width: $1"
 echo "Input path:   $2"
 echo "Output path:  $3"
@@ -24,13 +26,20 @@ mkdir -p "$3"
 
 for input_file in $(find "$2" -type f -iname "*.jpg"); do
 
+    i=$((i + 1))
     output_file="$3/$(basename "$input_file")"
 
     if [ -f "$output_file" ]; then
         echo "Refusing to overwrite existing file: $output_file"
     else
-        echo "Writing resized image: $input_file -> $output_file"
-        convert "$input_file" -resize "$1>" "$output_file"
+        echo "$input_file -> $output_file"
+        convert "$input_file" -resize "$1>" "$output_file" &
+    fi
+
+    if (( $i % $PARALLELIZE_BY == 0 )); then
+        wait # for background processes to complete
     fi
 
 done
+
+wait # ditto
