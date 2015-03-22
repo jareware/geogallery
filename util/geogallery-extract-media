@@ -1,5 +1,16 @@
 #!/usr/bin/env node
 
+/**
+ * This script will go through one or more paths given as arguments, look for supported media files, and print a JSON
+ * document describing the metadata of each media file.
+ *
+ * Read-only script, only writes to stdout.
+ *
+ * @requires exiftool
+ *
+ * @example $ geogallery-extract-media path/to/images path/to/videos > media.json
+ */
+
 var path = require('path'); // http://nodejs.org/api/path.html
 var fs = require('fs'); // http://nodejs.org/api/fs.html
 var exec = require('child_process').exec;
