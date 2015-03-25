@@ -15,12 +15,13 @@ cd "$1"
 mkdir -p geogallery/{images,thumbnails}
 cd geogallery
 
-$ROOT/util/geogallery-resize-media 1000 ../FINAL_PHOTOS images
-$ROOT/util/geogallery-resize-media 500 ../FINAL_THUMBNAILS thumbnails
-$ROOT/util/geogallery-resize-media 1500 ../FINAL_BG_IMAGE .
-$ROOT/util/geogallery-extract-media images > media.json
+$ROOT/geogallery-resize-media 1000 ../FINAL_PHOTOS images
+$ROOT/geogallery-resize-media 500 ../FINAL_THUMBNAILS thumbnails
+$ROOT/geogallery-resize-media 1500 ../FINAL_BG_IMAGE .
+$ROOT/geogallery-extract-media images > media.json
+$ROOT/geogallery-extract-tracks ../FINAL_GPS > tracks.json
 cp -f ../config.json .
-$ROOT/util/geogallery-assemble . > index.html
+$ROOT/geogallery-assemble . > index.html
 
 # Clean up unnecessary files from target
 rm -f {config,media,tracks}.json
