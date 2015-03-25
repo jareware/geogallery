@@ -15,6 +15,7 @@ var path = require('path'); // http://nodejs.org/api/path.html
 var fs = require('fs'); // http://nodejs.org/api/fs.html
 var exec = require('child_process').exec;
 
+var PARALLELIZE_BY = 8;
 var DEFAULT_TIMEZONE = '+09:00';
 var DEFAULT_GROUP = 'Ungrouped';
 var DAY_GROUP_TPL = 'Day %';
@@ -24,12 +25,10 @@ var EXIFTOOL_CMD = 'exiftool -GPSPosition -CreateDate -ImageDescription -coordFo
 var inputPaths = process.argv.slice(2);
 
 if (inputPaths.length) {
-    processFiles(inputPaths, function(err, mediaItems) {
-        if (err) {
-            throw err;
-        } else {
-            console.log(JSON.stringify(groupMediaItems(mediaItems), null, 4));
-        }
+    processFiles(inputPaths).then(function(mediaItems) {
+        console.log(JSON.stringify(groupMediaItems(mediaItems), null, 4));
+    }, function(err) {
+        console.error(err);
     });
 } else {
     throw new Error('Please provide one or more input paths as arguments');
@@ -43,48 +42,59 @@ function listFiles(fromPaths) {
     }, []);
 }
 
-function processFiles(fromPaths, callback) {
-    var outputItems = [];
-    var checkIfDone = function(err, mediaItem) {
-        if (err) return callback(err);
-        outputItems.push(mediaItem);
-        if (outputItems.length === inputCount) callback(null, outputItems);
-    };
-    var inputCount = listFiles(fromPaths).map(function(fileName) {
+function processFiles(fromPaths) {
+
+    var done = [];
+    var todo = listFiles(fromPaths).map(function(fileName) {
         switch (path.extname(fileName).toLowerCase()) {
             case '.jpg':
-                processImageFile(fileName, checkIfDone);
-                return true; // this file counts
-            case '.mp4':
-                processVideoFile(fileName, checkIfDone);
-                return true; // this file counts
+                return processImageFile.bind(null, fileName);
+            default:
+                return function() {}; // no-op
         }
-        return false; // this file doesn't count
-    }).filter(function(willBeProcessed) {
-        return willBeProcessed;
-    }).length;
+    });
+
+    return new Promise(function(resolve, reject) {
+
+        function doNextBatch() {
+            Promise.all(todo.splice(0, PARALLELIZE_BY).map(function(cb) {
+                return cb();
+            })).then(function(doneItems) {
+                done = done.concat(doneItems);
+                if (todo.length) {
+                    doNextBatch();
+                } else {
+                    resolve(done);
+                }
+            }, reject);
+        }
+
+        doNextBatch();
+
+    });
+
 }
 
-function processImageFile(fileName, callback) {
-    var cmd = EXIFTOOL_CMD + ' "' + fileName + '"';
-    exec(cmd, function(err, stdout) {
-        try {
-            if (err) throw err;
+function processImageFile(fileName) {
+    console.error('Extracting image metadata: ' + fileName); // write progress to stderr so JSON on stdout stays intact
+    return new Promise(function(resolve, reject) {
+        var cmd = EXIFTOOL_CMD + ' "' + fileName + '"';
+        exec(cmd, function(err, stdout) {
+            if (err) reject(err);
             var exif = JSON.parse(stdout)[0];
-            callback(null, {
+            resolve({
                 type: 'image',
                 url: exif.SourceFile,
                 timestamp: exif.CreateDate + DEFAULT_TIMEZONE,
                 comment: (exif.ImageDescription || '').trim(),
                 location: exif.GPSPosition ? exif.GPSPosition.split(', ').map(parseFloat) : null
             });
-        } catch (e) {
-            callback(e)
-        }
+        });
     });
 }
 
 function processVideoFile(fileName, callback) {
+    throw new Error('Not yet supported');
     var item = {
         type: 'video',
         url: fileName,
@@ -133,6 +143,7 @@ function groupMediaItems(mediaItems) {
             groups[groupID] = {
                 groupID: groupID,
                 title: '',
+                thumbnailURL: null,
                 description: '',
                 media: []
             };
