@@ -49,6 +49,8 @@ function processFiles(fromPaths) {
         switch (path.extname(fileName).toLowerCase()) {
             case '.jpg':
                 return processImageFile.bind(null, fileName);
+            case '.mp4':
+                return processVideoFile.bind(null, fileName);
             default:
                 return function() {}; // no-op
         }
@@ -93,27 +95,29 @@ function processImageFile(fileName) {
     });
 }
 
-function processVideoFile(fileName, callback) {
-    throw new Error('Not yet supported');
-    var item = {
-        type: 'video',
-        url: fileName,
-        timestamp: [],
-        comment: '',
-        location: []
-    };
-    var candidate = path.join(path.dirname(fileName), path.basename(fileName, path.extname(fileName)) + '.srt');
-    fs.readFile(candidate, function(err, subtitleContent) {
-        if (err) return callback(null, item); // TODO: Implement default timestamp based on file created date..?
-        (subtitleContent + '').split('\n\n').forEach(function(metadata) {
-            metadata = metadata.split('\n');
-            if (metadata[2] && metadata[3]) {
-                item.timestamp.push(metadata[2]);
-                var coords = parseWGS84String(metadata[3]);
-                item.location.push([ coords.lat, coords.lng ]);
-            }
+function processVideoFile(fileName) {
+    console.error('Extracting video metadata: ' + fileName); // write progress to stderr so JSON on stdout stays intact
+    return new Promise(function(resolve, reject) {
+        var item = {
+            type: 'video',
+            url: fileName,
+            timestamp: [],
+            comment: '',
+            location: []
+        };
+        var candidate = path.join(path.dirname(fileName), path.basename(fileName, path.extname(fileName)) + '.srt');
+        fs.readFile(candidate, function(err, subtitleContent) {
+            if (err) return resolve(item); // it's OK, the default data's enough // TODO: Implement default timestamp based on file created date..?
+            (subtitleContent + '').split('\n\n').forEach(function(metadata) {
+                metadata = metadata.split('\n');
+                if (metadata[2] && metadata[3]) {
+                    item.timestamp.push(metadata[2]);
+                    var coords = parseWGS84String(metadata[3]);
+                    item.location.push([ coords.lat, coords.lng ]);
+                }
+            });
+            resolve(item);
         });
-        callback(null, item);
     });
 }
 
