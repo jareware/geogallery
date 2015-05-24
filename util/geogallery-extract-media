@@ -15,10 +15,12 @@ var path = require('path'); // http://nodejs.org/api/path.html
 var fs = require('fs'); // http://nodejs.org/api/fs.html
 var exec = require('child_process').exec;
 
+var grouping = 'month';
+
 var PARALLELIZE_BY = 8;
 var DEFAULT_TIMEZONE = '+09:00';
 var DEFAULT_GROUP = 'Ungrouped';
-var DAY_GROUP_TPL = 'Day %';
+var DAY_GROUP_TPL = grouping  === 'month' ? 'Month %' : 'Day %';
 var DAY_FILE_TPL = 'thumbnails/day%.JPG';
 var EXIFTOOL_CMD = 'exiftool -GPSPosition -CreateDate -ImageDescription -coordFormat "%+.6f" -dateFormat "%Y-%m-%d %H:%M:%S " -json';
 
@@ -123,6 +125,11 @@ function processVideoFile(fileName) {
 
 function timestampToString(item) {
     var ts = (Array.isArray(item.timestamp) ? item.timestamp[0] : item.timestamp) + '';
+
+    if (grouping === 'month') {
+        return ts.split(' ')[0].slice(0, - 3);
+    }
+
     if (!ts.match(/^\d+-\d+-\d+ \d+:\d+:\d+ [+-]\d+:\d+$/)) {
         throw new Error('Non-standard date "' + ts + '" encountered, expecting e.g. "2014-01-01 12:34:56 +3:00", related item is:\n' + JSON.stringify(item, undefined, 4));
     }
